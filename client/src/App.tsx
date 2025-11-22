@@ -10,6 +10,7 @@ import NouveauDossier from "./pages/NouveauDossier";
 import Dashboard from "./pages/Dashboard";
 import Facturation from "./pages/Facturation";
 import Statistiques from "./pages/Statistiques";
+import Calendrier from "./pages/Calendrier";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -21,6 +22,7 @@ function Router() {
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/facturation"} component={Facturation} />
       <Route path={"/stats"} component={Statistiques} />
+      <Route path={"/calendrier"} component={Calendrier} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

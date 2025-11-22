@@ -590,6 +590,126 @@ export const appRouter = router({
         };
          }),
   }),
+
+  // ============================================================================
+  // SEANCES ROUTER (Calendrier)
+  // ============================================================================
+  seances: router({
+    // Créer une nouvelle séance
+    create: protectedProcedure
+      .input(z.object({
+        dossierId: z.number(),
+        titre: z.string(),
+        description: z.string().optional(),
+        dateDebut: z.string(), // ISO date string
+        dateFin: z.string(), // ISO date string
+        dureeMinutes: z.number().default(120),
+        phase: z.enum(["phase1", "phase2", "phase3"]),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.createSeance({
+          dossierId: input.dossierId,
+          titre: input.titre,
+          description: input.description || null,
+          dateDebut: new Date(input.dateDebut),
+          dateFin: new Date(input.dateFin),
+          dureeMinutes: input.dureeMinutes,
+          statut: "planifie",
+          phase: input.phase,
+          rappelEnvoye: false,
+          notes: input.notes || null,
+        });
+
+        return { success: true };
+      }),
+
+    // Lister toutes les séances
+    list: protectedProcedure
+      .query(async () => {
+        const seancesList = await db.getAllSeances();
+        return seancesList;
+      }),
+
+    // Lister les séances d'un dossier
+    listByDossier: protectedProcedure
+      .input(z.object({ dossierId: z.number() }))
+      .query(async ({ input }) => {
+        const seancesList = await db.getSeancesByDossier(input.dossierId);
+        return seancesList;
+      }),
+
+    // Obtenir une séance par ID
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const seance = await db.getSeanceById(input.id);
+        if (!seance) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Séance non trouvée",
+          });
+        }
+        return seance;
+      }),
+
+    // Mettre à jour une séance
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        titre: z.string().optional(),
+        description: z.string().optional(),
+        dateDebut: z.string().optional(),
+        dateFin: z.string().optional(),
+        dureeMinutes: z.number().optional(),
+        statut: z.enum(["planifie", "termine", "annule"]).optional(),
+        phase: z.enum(["phase1", "phase2", "phase3"]).optional(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...updates } = input;
+        const updateData: any = {};
+
+        if (updates.titre) updateData.titre = updates.titre;
+        if (updates.description !== undefined) updateData.description = updates.description;
+        if (updates.dateDebut) updateData.dateDebut = new Date(updates.dateDebut);
+        if (updates.dateFin) updateData.dateFin = new Date(updates.dateFin);
+        if (updates.dureeMinutes) updateData.dureeMinutes = updates.dureeMinutes;
+        if (updates.statut) updateData.statut = updates.statut;
+        if (updates.phase) updateData.phase = updates.phase;
+        if (updates.notes !== undefined) updateData.notes = updates.notes;
+
+        await db.updateSeance(id, updateData);
+        return { success: true };
+      }),
+
+    // Supprimer une séance
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteSeance(input.id);
+        return { success: true };
+      }),
+
+    // Envoyer les rappels pour les séances à venir
+    sendReminders: protectedProcedure
+      .mutation(async () => {
+        const seancesRequiringReminder = await db.getSeancesRequiringReminder();
+        
+        // TODO: Implémenter l'envoi d'emails de rappel
+        // Pour chaque séance, envoyer un email au bénéficiaire
+        
+        for (const seance of seancesRequiringReminder) {
+          // Marquer le rappel comme envoyé
+          await db.updateSeance(seance.id, { rappelEnvoye: true });
+        }
+
+        return {
+          success: true,
+          count: seancesRequiringReminder.length,
+        };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

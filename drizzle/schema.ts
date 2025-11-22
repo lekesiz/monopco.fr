@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { boolean, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -103,3 +103,26 @@ export const historique = mysqlTable("historique", {
 
 export type Historique = typeof historique.$inferSelect;
 export type InsertHistorique = typeof historique.$inferInsert;
+
+/**
+ * Table seances - Séances de rendez-vous pour les bilans de compétences
+ * Permet la planification des 3 phases avec rappels automatiques
+ */
+export const seances = mysqlTable("seances", {
+  id: int("id").autoincrement().primaryKey(),
+  dossierId: int("dossierId").notNull(), // FK vers dossiers
+  titre: varchar("titre", { length: 200 }).notNull(), // Ex: "Phase 1 - Séance 1"
+  description: text("description"),
+  dateDebut: timestamp("dateDebut").notNull(), // Date et heure de début
+  dateFin: timestamp("dateFin").notNull(), // Date et heure de fin
+  dureeMinutes: int("dureeMinutes").default(120).notNull(), // Durée en minutes (défaut: 2h)
+  statut: mysqlEnum("statut", ["planifie", "termine", "annule"]).default("planifie").notNull(),
+  phase: mysqlEnum("phase", ["phase1", "phase2", "phase3"]).notNull(), // Phase du bilan
+  rappelEnvoye: boolean("rappelEnvoye").default(false).notNull(), // Email de rappel 24h avant
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Seance = typeof seances.$inferSelect;
+export type InsertSeance = typeof seances.$inferInsert;

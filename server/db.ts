@@ -1,4 +1,4 @@
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, asc, gte, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, 
@@ -10,7 +10,10 @@ import {
   InsertDossier,
   Dossier,
   historique,
-  InsertHistorique
+  InsertHistorique,
+  seances,
+  InsertSeance,
+  Seance
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -249,4 +252,102 @@ export async function getDashboardStats() {
     factures: allDossiers.filter(d => d.statut === 'facture').length,
     totalEntreprises: allEntreprises.length
   };
+}
+
+// ============================================================================
+// SEANCES MANAGEMENT
+// ============================================================================
+
+export async function createSeance(seance: InsertSeance) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.insert(seances).values(seance);
+  return result;
+}
+
+export async function getSeancesByDossier(dossierId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const seancesList = await db
+    .select()
+    .from(seances)
+    .where(eq(seances.dossierId, dossierId))
+    .orderBy(asc(seances.dateDebut));
+
+  return seancesList;
+}
+
+export async function getAllSeances() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const seancesList = await db
+    .select()
+    .from(seances)
+    .orderBy(asc(seances.dateDebut));
+
+  return seancesList;
+}
+
+export async function getSeanceById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const [seance] = await db
+    .select()
+    .from(seances)
+    .where(eq(seances.id, id))
+    .limit(1);
+
+  return seance || null;
+}
+
+export async function updateSeance(id: number, updates: Partial<InsertSeance>) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db
+    .update(seances)
+    .set(updates)
+    .where(eq(seances.id, id));
+}
+
+export async function deleteSeance(id: number) {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db
+    .delete(seances)
+    .where(eq(seances.id, id));
+}
+
+export async function getSeancesRequiringReminder() {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Séances dans les prochaines 24h qui n'ont pas encore reçu de rappel
+  const now = new Date();
+  const in24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+  const seancesList = await db
+    .select()
+    .from(seances)
+    .where(
+      and(
+        eq(seances.statut, "planifie"),
+        eq(seances.rappelEnvoye, false),
+        gte(seances.dateDebut, now),
+        lte(seances.dateDebut, in24Hours)
+      )
+    );
+
+  return seancesList;
 }
