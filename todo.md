@@ -130,3 +130,10 @@
 - [x] Ajouter coordonnées bancaires Netz
 - [x] Tester toutes les nouvelles fonctionnalités
 - [x] Checkpoint final v6.0
+
+## Phase 12: Améliorations Finales v7.0
+- [x] Ajouter lien "Facturation" dans la sidebar du Dashboard
+- [x] Créer système CRON pour rappels automatiques quotidiens
+- [x] Documenter la configuration CRON (Vercel/GitHub Actions)
+- [ ] Pousser le code final sur GitHub
+- [ ] Checkpoint final v7.0
