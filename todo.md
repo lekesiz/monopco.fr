@@ -53,3 +53,27 @@
 - [x] Test performance (< 2s chargement)
 - [x] Documentation utilisateur
 - [x] Checkpoint final
+
+## Phase 6: Génération Documents OPCO et Intégrations API
+- [x] Rechercher documents OPCO officiels requis
+- [x] Créer templates PDF pour Convention de Formation
+- [x] Créer templates PDF pour Attestation de Présence
+- [x] Créer templates PDF pour Feuille d'Émargement
+- [x] Créer templates PDF pour Synthèse Bilan de Compétences
+- [x] Créer templates PDF pour Demande de Prise en Charge
+- [x] Implémenter génération PDF automatique
+- [x] Intégrer API Pappers.fr avec clé réelle
+- [x] Intégrer API Resend pour notifications email
+- [ ] Corriger erreurs TypeScript (types incompatibles)
+- [ ] Tester génération documents
+- [ ] Tester envoi emails
+
+## Phase 7: GitHub et Documentation
+- [ ] Configurer dépôt GitHub
+- [ ] Pousser le code sur GitHub
+- [ ] Créer CONTRIBUTING.md pour collaboration
+- [ ] Créer CHANGELOG.md
+- [ ] Mettre à jour README avec instructions complètes
+- [ ] Ajouter badges et statuts au README
+- [ ] Documenter l'architecture technique
+- [ ] Créer guide de déploiement

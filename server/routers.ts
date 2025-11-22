@@ -234,6 +234,17 @@ export const appRouter = router({
           commentaire: `Statut changé de ${dossier.statut} à ${input.statut}`
         });
 
+        // Envoyer notification email
+        const { notifierChangementStatut } = await import("./emailService");
+        await notifierChangementStatut({
+          beneficiaireEmail: dossier.beneficiaireEmail,
+          beneficiaireNom: dossier.beneficiaireNom,
+          beneficiairePrenom: dossier.beneficiairePrenom,
+          ancienStatut: dossier.statut,
+          nouveauStatut: input.statut,
+          typeDossier: dossier.typeDossier,
+        });
+
         return { success: true };
       }),
 
@@ -293,6 +304,141 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return db.getDossiersByStatut(input.statut);
       })
+  }),
+
+  // ============================================================================
+  // DOCUMENTS PDF ROUTER
+  // ============================================================================
+  documents: router({
+    genererConvention: protectedProcedure
+      .input(
+        z.object({
+          dossierId: z.number(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { genererConventionTripartite } = await import("./pdfGenerator");
+        const dossier = await db.getDossierById(input.dossierId);
+        if (!dossier) throw new TRPCError({ code: "NOT_FOUND", message: "Dossier non trouvé" });
+
+        const entreprise = await db.getEntrepriseById(dossier.entrepriseId);
+        if (!entreprise) throw new TRPCError({ code: "NOT_FOUND", message: "Entreprise non trouvée" });
+
+        const beneficiaire = {
+          nom: dossier.beneficiaireNom,
+          prenom: dossier.beneficiairePrenom,
+          email: dossier.beneficiaireEmail,
+          telephone: dossier.beneficiaireTelephone,
+        };
+
+        const pdfBuffer = await genererConventionTripartite(entreprise, beneficiaire, dossier);
+        return {
+          success: true,
+          filename: `convention_${dossier.reference}.pdf`,
+          data: pdfBuffer.toString("base64"),
+        };
+      }),
+
+    genererCertificat: protectedProcedure
+      .input(
+        z.object({
+          dossierId: z.number(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { genererCertificatRealisation } = await import("./pdfGenerator");
+        const dossier = await db.getDossierById(input.dossierId);
+        if (!dossier) throw new TRPCError({ code: "NOT_FOUND", message: "Dossier non trouvé" });
+
+        const entreprise = await db.getEntrepriseById(dossier.entrepriseId);
+        if (!entreprise) throw new TRPCError({ code: "NOT_FOUND", message: "Entreprise non trouvée" });
+
+        const beneficiaire = {
+          nom: dossier.beneficiaireNom,
+          prenom: dossier.beneficiairePrenom,
+          email: dossier.beneficiaireEmail,
+          telephone: dossier.beneficiaireTelephone,
+        };
+
+        const pdfBuffer = await genererCertificatRealisation(entreprise, beneficiaire, dossier);
+        return {
+          success: true,
+          filename: `certificat_${dossier.reference}.pdf`,
+          data: pdfBuffer.toString("base64"),
+        };
+      }),
+
+    genererEmargement: protectedProcedure
+      .input(
+        z.object({
+          dossierId: z.number(),
+          seance: z.object({
+            date: z.string(),
+            heureDebut: z.string(),
+            heureFin: z.string(),
+            duree: z.number(),
+            theme: z.string(),
+            phase: z.enum(["Phase 1", "Phase 2", "Phase 3"]),
+          }),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { genererFeuilleEmargement } = await import("./pdfGenerator");
+        const dossier = await db.getDossierById(input.dossierId);
+        if (!dossier) throw new TRPCError({ code: "NOT_FOUND", message: "Dossier non trouvé" });
+
+        const entreprise = await db.getEntrepriseById(dossier.entrepriseId);
+        if (!entreprise) throw new TRPCError({ code: "NOT_FOUND", message: "Entreprise non trouvée" });
+
+        const beneficiaire = {
+          nom: dossier.beneficiaireNom,
+          prenom: dossier.beneficiairePrenom,
+          email: dossier.beneficiaireEmail,
+          telephone: dossier.beneficiaireTelephone,
+        };
+
+        const seance = {
+          ...input.seance,
+          date: new Date(input.seance.date),
+        };
+
+        const pdfBuffer = await genererFeuilleEmargement(entreprise, beneficiaire, dossier, seance);
+        return {
+          success: true,
+          filename: `emargement_${dossier.reference}_${input.seance.date}.pdf`,
+          data: pdfBuffer.toString("base64"),
+        };
+      }),
+
+    genererDemandePriseEnCharge: protectedProcedure
+      .input(
+        z.object({
+          dossierId: z.number(),
+          montant: z.number(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { genererDemandePriseEnCharge } = await import("./pdfGenerator");
+        const dossier = await db.getDossierById(input.dossierId);
+        if (!dossier) throw new TRPCError({ code: "NOT_FOUND", message: "Dossier non trouvé" });
+
+        const entreprise = await db.getEntrepriseById(dossier.entrepriseId);
+        if (!entreprise) throw new TRPCError({ code: "NOT_FOUND", message: "Entreprise non trouvée" });
+
+        const beneficiaire = {
+          nom: dossier.beneficiaireNom,
+          prenom: dossier.beneficiairePrenom,
+          email: dossier.beneficiaireEmail,
+          telephone: dossier.beneficiaireTelephone,
+        };
+
+        const pdfBuffer = await genererDemandePriseEnCharge(entreprise, beneficiaire, dossier, input.montant);
+        return {
+          success: true,
+          filename: `demande_prise_en_charge_${dossier.reference}.pdf`,
+          data: pdfBuffer.toString("base64"),
+        };
+      }),
   }),
 
   // ============================================================================

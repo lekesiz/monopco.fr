@@ -120,13 +120,18 @@ export async function createEntreprise(data: InsertEntreprise): Promise<Entrepri
   
   return inserted[0];
 }
+export async function getEntrepriseBySiret(siret: string) {
+  const dbInstance = await getDb();
+  if (!dbInstance) return undefined;
+  const result = await dbInstance.select().from(entreprises).where(eq(entreprises.siret, siret)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
 
-export async function getEntrepriseBySiret(siret: string): Promise<Entreprise | undefined> {
-  const db = await getDb();
-  if (!db) return undefined;
-
-  const result = await db.select().from(entreprises).where(eq(entreprises.siret, siret)).limit(1);
-  return result[0];
+export async function getEntrepriseById(id: number) {
+  const dbInstance = await getDb();
+  if (!dbInstance) return undefined;
+  const result = await dbInstance.select().from(entreprises).where(eq(entreprises.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
 }
 
 export async function updateEntreprise(id: number, data: Partial<InsertEntreprise>): Promise<void> {
