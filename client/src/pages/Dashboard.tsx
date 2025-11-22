@@ -11,7 +11,8 @@ import {
   Users,
   CheckCircle2,
   Clock,
-  ArrowLeft
+  ArrowLeft,
+  Download
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { APP_LOGO, getLoginUrl } from "@/const";
@@ -167,12 +168,49 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-            <Link href="/nouveau-dossier">
-              <Button className="shadow-blue">
-                <Plus className="mr-2 h-4 w-4" />
-                Nouveau Dossier
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  toast.info("Génération de l'export Excel...");
+                  // Utiliser fetch pour appeler directement l'API tRPC
+                  fetch("/api/trpc/dashboard.exportExcel", {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                  })
+                    .then((res) => res.json())
+                    .then((data) => {
+                      const result = data.result.data;
+                      if (result.success) {
+                        // Décoder le base64 et télécharger
+                        const blob = new Blob(
+                          [Uint8Array.from(atob(result.data), c => c.charCodeAt(0))],
+                          { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }
+                        );
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = result.filename;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        toast.success("Export Excel téléchargé !");
+                      }
+                    })
+                    .catch((error) => {
+                      toast.error("Erreur lors de l'export: " + error.message);
+                    });
+                }}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Exporter Excel
               </Button>
-            </Link>
+              <Link href="/nouveau-dossier">
+                <Button className="shadow-blue">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Nouveau Dossier
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </header>

@@ -139,6 +139,20 @@ export const appRouter = router({
       return db.getAllEntreprises();
     }),
 
+    // Obtenir une entreprise par ID
+    obtenirParId: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const entreprise = await db.getEntrepriseById(input.id);
+        if (!entreprise) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Entreprise non trouvée"
+          });
+        }
+        return entreprise;
+      }),
+
     // Mettre à jour une entreprise
     mettreAJour: protectedProcedure
       .input(z.object({
@@ -171,8 +185,19 @@ export const appRouter = router({
         dateFin: z.date().optional()
       }))
       .mutation(async ({ input, ctx }) => {
+        // Générer une référence unique (BC-YYYY-NNN)
+        const year = new Date().getFullYear();
+        const allDossiers = await db.getAllDossiers();
+        const dossiersThisYear = allDossiers.filter(d => {
+          const createdYear = new Date(d.createdAt).getFullYear();
+          return createdYear === year;
+        });
+        const nextNumber = dossiersThisYear.length + 1;
+        const reference = `BC-${year}-${String(nextNumber).padStart(3, "0")}`;
+
         const dossier = await db.createDossier({
           ...input,
+          reference,
           createdBy: ctx.user?.id
         });
 
@@ -182,7 +207,7 @@ export const appRouter = router({
           userId: ctx.user?.id,
           action: "creation",
           nouvelleValeur: "Dossier créé",
-          commentaire: `Dossier ${input.typeDossier} créé pour ${input.beneficiairePrenom} ${input.beneficiaireNom}`
+          commentaire: `Dossier ${input.typeDossier} créé pour ${input.beneficiairePrenom} ${input.beneficiaireNom} (Réf: ${reference})`
         });
 
         return dossier;

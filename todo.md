@@ -104,3 +104,16 @@
 - [ ] Mettre à jour README avec nouvelles fonctionnalités
 - [ ] Pousser sur GitHub
 - [ ] Checkpoint final v4.0
+
+## Phase 10: Améliorations Finales UX
+- [x] Ajouter bouton "Exporter Excel" dans Dashboard
+- [x] Implémenter téléchargement automatique du fichier Excel
+- [ ] Ajouter filtres OPCO et Statut pour l'export (optionnel)
+- [x] Implémenter génération automatique de référence (BC-YYYY-NNN)
+- [x] Créer compteur incrémental par année
+- [x] Créer page Détail Dossier (/dossier/:id)
+- [x] Afficher toutes les informations du dossier
+- [x] Afficher l'historique des actions
+- [x] Ajouter boutons génération PDF individuels
+- [ ] Tester toutes les nouvelles fonctionnalités
+- [ ] Checkpoint final v5.0
