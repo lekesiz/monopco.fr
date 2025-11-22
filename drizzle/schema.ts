@@ -1,15 +1,14 @@
 import { boolean, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
- * Core user table backing auth flow.
+ * Core user table backing JWT auth flow.
  * Extended with role-based access for admin dashboard.
  */
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
-  openId: varchar("openId", { length: 64 }).notNull().unique(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  passwordHash: varchar("passwordHash", { length: 255 }).notNull(),
   name: text("name"),
-  email: varchar("email", { length: 320 }),
-  loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -48,13 +47,13 @@ export const dossiers = mysqlTable("dossiers", {
   id: int("id").autoincrement().primaryKey(),
   entrepriseId: int("entrepriseId").notNull(), // FK vers entreprises
   typeDossier: mysqlEnum("typeDossier", ["bilan", "formation"]).notNull(),
-  
+
   // Informations bénéficiaire
   beneficiaireNom: text("beneficiaireNom").notNull(),
   beneficiairePrenom: text("beneficiairePrenom").notNull(),
   beneficiaireEmail: varchar("beneficiaireEmail", { length: 320 }).notNull(),
   beneficiaireTelephone: varchar("beneficiaireTelephone", { length: 20 }),
-  
+
   // Statut workflow
   statut: mysqlEnum("statut", [
     "nouveau",
@@ -63,20 +62,20 @@ export const dossiers = mysqlTable("dossiers", {
     "phase3", // Phase conclusion
     "facture"
   ]).default("nouveau").notNull(),
-  
+
   // Suivi heures (pour Bilan: 24h réglementaires)
   heuresRealisees: int("heuresRealisees").default(0).notNull(),
   heuresTotal: int("heuresTotal").default(24).notNull(), // 24h pour Bilan standard
-  
+
   // Dates
   dateDebut: timestamp("dateDebut"),
   dateFin: timestamp("dateFin"),
-  
+
   // Notes et documents
   notes: text("notes"),
   documentUrls: text("documentUrls"), // JSON array of URLs
   reference: varchar("reference", { length: 50 }), // Référence du dossier (ex: BC-2025-001)
-  
+
   // Métadonnées
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

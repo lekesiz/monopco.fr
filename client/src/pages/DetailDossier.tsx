@@ -18,8 +18,10 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { Link, useRoute } from "wouter";
-import { APP_LOGO, getLoginUrl } from "@/const";
+import { APP_LOGO } from "@/const";
+import { LoginDialog } from "@/components/LoginDialog";
 import { toast } from "sonner";
+import { useState } from "react";
 
 const STATUT_LABELS: Record<string, string> = {
   nouveau: "Nouveau",
@@ -32,7 +34,8 @@ const STATUT_LABELS: Record<string, string> = {
 export default function DetailDossier() {
   const [, params] = useRoute("/dossier/:id");
   const dossierId = params?.id ? parseInt(params.id) : 0;
-  
+  const [showLogin, setShowLogin] = useState(false);
+
   const { user, loading: authLoading, isAuthenticated } = useAuth();
   
   const { data: dossier, isLoading, error, refetch } = trpc.dossier.obtenirParId.useQuery(
@@ -71,7 +74,7 @@ export default function DetailDossier() {
           <CardContent className="space-y-4">
             <Button
               className="w-full"
-              onClick={() => window.location.href = getLoginUrl()}
+              onClick={() => setShowLogin(true)}
             >
               Se connecter
             </Button>
@@ -82,6 +85,11 @@ export default function DetailDossier() {
             </Link>
           </CardContent>
         </Card>
+        <LoginDialog
+          open={showLogin}
+          onOpenChange={setShowLogin}
+          onClose={() => setShowLogin(false)}
+        />
       </div>
     );
   }

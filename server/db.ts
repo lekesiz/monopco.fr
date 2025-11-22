@@ -1,10 +1,10 @@
 import { eq, desc, and, asc, gte, lte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { 
-  InsertUser, 
-  users, 
-  entreprises, 
-  InsertEntreprise, 
+import { createHash, randomBytes, timingSafeEqual } from "crypto";
+import {
+  users,
+  entreprises,
+  InsertEntreprise,
   Entreprise,
   dossiers,
   InsertDossier,
@@ -13,9 +13,9 @@ import {
   InsertHistorique,
   seances,
   InsertSeance,
-  Seance
+  Seance,
+  User
 } from "../drizzle/schema";
-import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -33,78 +33,105 @@ export async function getDb() {
 }
 
 // ============================================================================
-// USER MANAGEMENT
+// PASSWORD HASHING (using Node.js crypto)
 // ============================================================================
 
-export async function upsertUser(user: InsertUser): Promise<void> {
-  if (!user.openId) {
-    throw new Error("User openId is required for upsert");
-  }
+function hashPassword(password: string): string {
+  const salt = randomBytes(16).toString("hex");
+  const hash = createHash("sha256")
+    .update(password + salt)
+    .digest("hex");
+  return `${salt}:${hash}`;
+}
 
-  const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot upsert user: database not available");
-    return;
-  }
+function verifyPasswordHash(password: string, storedHash: string): boolean {
+  const [salt, hash] = storedHash.split(":");
+  if (!salt || !hash) return false;
 
+  const testHash = createHash("sha256")
+    .update(password + salt)
+    .digest("hex");
+
+  // Use timing-safe comparison to prevent timing attacks
   try {
-    const values: InsertUser = {
-      openId: user.openId,
-    };
-    const updateSet: Record<string, unknown> = {};
-
-    const textFields = ["name", "email", "loginMethod"] as const;
-    type TextField = (typeof textFields)[number];
-
-    const assignNullable = (field: TextField) => {
-      const value = user[field];
-      if (value === undefined) return;
-      const normalized = value ?? null;
-      values[field] = normalized;
-      updateSet[field] = normalized;
-    };
-
-    textFields.forEach(assignNullable);
-
-    if (user.lastSignedIn !== undefined) {
-      values.lastSignedIn = user.lastSignedIn;
-      updateSet.lastSignedIn = user.lastSignedIn;
-    }
-    if (user.role !== undefined) {
-      values.role = user.role;
-      updateSet.role = user.role;
-    } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
-    }
-
-    if (!values.lastSignedIn) {
-      values.lastSignedIn = new Date();
-    }
-
-    if (Object.keys(updateSet).length === 0) {
-      updateSet.lastSignedIn = new Date();
-    }
-
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
-      set: updateSet,
-    });
-  } catch (error) {
-    console.error("[Database] Failed to upsert user:", error);
-    throw error;
+    return timingSafeEqual(Buffer.from(hash, "hex"), Buffer.from(testHash, "hex"));
+  } catch {
+    return false;
   }
 }
 
-export async function getUserByOpenId(openId: string) {
+// ============================================================================
+// USER MANAGEMENT
+// ============================================================================
+
+export async function createUser(data: {
+  email: string;
+  password: string;
+  name: string;
+}): Promise<User> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const passwordHash = hashPassword(data.password);
+
+  const result = await db.insert(users).values({
+    email: data.email,
+    passwordHash,
+    name: data.name,
+    role: "user",
+  });
+
+  const insertedId = Number(result[0].insertId);
+  const [user] = await db.select().from(users).where(eq(users.id, insertedId)).limit(1);
+
+  if (!user) throw new Error("Failed to retrieve created user");
+  return user;
+}
+
+export async function getUserById(id: number): Promise<User | undefined> {
   const db = await getDb();
   if (!db) {
     console.warn("[Database] Cannot get user: database not available");
     return undefined;
   }
 
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+  const [user] = await db.select().from(users).where(eq(users.id, id)).limit(1);
+  return user;
+}
 
-  return result.length > 0 ? result[0] : undefined;
+export async function getUserByEmail(email: string): Promise<User | undefined> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return undefined;
+  }
+
+  const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  return user;
+}
+
+export async function verifyPassword(userId: number, password: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  if (!user) return false;
+
+  return verifyPasswordHash(password, user.passwordHash);
+}
+
+export async function updateUserLastSignedIn(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, userId));
+}
+
+export async function updateUserRole(userId: number, role: "user" | "admin"): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(users).set({ role }).where(eq(users.id, userId));
 }
 
 // ============================================================================
@@ -117,12 +144,13 @@ export async function createEntreprise(data: InsertEntreprise): Promise<Entrepri
 
   const result = await db.insert(entreprises).values(data);
   const insertedId = Number(result[0].insertId);
-  
+
   const inserted = await db.select().from(entreprises).where(eq(entreprises.id, insertedId)).limit(1);
   if (!inserted[0]) throw new Error("Failed to retrieve inserted entreprise");
-  
+
   return inserted[0];
 }
+
 export async function getEntrepriseBySiret(siret: string) {
   const dbInstance = await getDb();
   if (!dbInstance) return undefined;
@@ -161,10 +189,10 @@ export async function createDossier(data: InsertDossier): Promise<Dossier> {
 
   const result = await db.insert(dossiers).values(data);
   const insertedId = Number(result[0].insertId);
-  
+
   const inserted = await db.select().from(dossiers).where(eq(dossiers.id, insertedId)).limit(1);
   if (!inserted[0]) throw new Error("Failed to retrieve inserted dossier");
-  
+
   return inserted[0];
 }
 

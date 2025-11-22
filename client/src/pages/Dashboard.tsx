@@ -18,7 +18,8 @@ import {
   Calendar
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { APP_LOGO, getLoginUrl } from "@/const";
+import { APP_LOGO } from "@/const";
+import { LoginDialog } from "@/components/LoginDialog";
 import { useState } from "react";
 import {
   Dialog,
@@ -67,6 +68,7 @@ export default function Dashboard() {
   const [selectedDossier, setSelectedDossier] = useState<any>(null);
   const [heuresInput, setHeuresInput] = useState("");
   const [notesInput, setNotesInput] = useState("");
+  const [showLogin, setShowLogin] = useState(false);
 
   const { data: stats, isLoading: statsLoading } = trpc.dashboard.stats.useQuery();
   const { data: dossiers, isLoading: dossiersLoading, refetch } = trpc.dossier.lister.useQuery();
@@ -124,7 +126,7 @@ export default function Dashboard() {
           <CardContent className="space-y-4">
             <Button
               className="w-full"
-              onClick={() => window.location.href = getLoginUrl()}
+              onClick={() => setShowLogin(true)}
             >
               Se connecter
             </Button>
@@ -135,6 +137,11 @@ export default function Dashboard() {
             </Link>
           </CardContent>
         </Card>
+        <LoginDialog
+          open={showLogin}
+          onOpenChange={setShowLogin}
+          onClose={() => setShowLogin(false)}
+        />
       </div>
     );
   }

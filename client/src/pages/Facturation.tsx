@@ -21,12 +21,15 @@ import {
   Building
 } from "lucide-react";
 import { Link } from "wouter";
-import { APP_LOGO, getLoginUrl } from "@/const";
+import { APP_LOGO } from "@/const";
+import { LoginDialog } from "@/components/LoginDialog";
 import { toast } from "sonner";
+import { useState } from "react";
 
 export default function Facturation() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
-  
+  const [showLogin, setShowLogin] = useState(false);
+
   const { data: dossiers, isLoading, refetch } = trpc.dossier.lister.useQuery(
     undefined,
     { enabled: isAuthenticated }
@@ -62,7 +65,7 @@ export default function Facturation() {
           <CardContent className="space-y-4">
             <Button
               className="w-full"
-              onClick={() => window.location.href = getLoginUrl()}
+              onClick={() => setShowLogin(true)}
             >
               Se connecter
             </Button>
@@ -73,6 +76,11 @@ export default function Facturation() {
             </Link>
           </CardContent>
         </Card>
+        <LoginDialog
+          open={showLogin}
+          onOpenChange={setShowLogin}
+          onClose={() => setShowLogin(false)}
+        />
       </div>
     );
   }
