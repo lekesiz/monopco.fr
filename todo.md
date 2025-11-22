@@ -69,11 +69,12 @@
 - [ ] Tester envoi emails
 
 ## Phase 7: GitHub et Documentation
-- [ ] Configurer dépôt GitHub
-- [ ] Pousser le code sur GitHub
-- [ ] Créer CONTRIBUTING.md pour collaboration
+- [x] Configurer dépôt GitHub
+- [x] Créer CONTRIBUTING.md pour collaboration
+- [x] Créer README_GITHUB.md complet
+- [x] Documenter l'architecture technique
+- [x] Créer guide de déploiement
+- [x] Commit Git local créé
+- [ ] Pousser le code sur GitHub (manuel ou via gh CLI)
 - [ ] Créer CHANGELOG.md
-- [ ] Mettre à jour README avec instructions complètes
 - [ ] Ajouter badges et statuts au README
-- [ ] Documenter l'architecture technique
-- [ ] Créer guide de déploiement
