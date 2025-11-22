@@ -135,5 +135,17 @@
 - [x] Ajouter lien "Facturation" dans la sidebar du Dashboard
 - [x] Créer système CRON pour rappels automatiques quotidiens
 - [x] Documenter la configuration CRON (Vercel/GitHub Actions)
-- [ ] Pousser le code final sur GitHub
-- [ ] Checkpoint final v7.0
+- [x] Checkpoint final v7.0
+- [ ] Pousser le code final sur GitHub (manuel: gh auth login + git push)
+
+## Phase 13: Statistiques et Signature Électronique
+- [x] Installer Chart.js et react-chartjs-2
+- [x] Créer page /stats avec graphiques
+- [x] Graphique évolution mensuelle des dossiers par OPCO
+- [x] Graphique taux de conversion (nouveau → facturé)
+- [x] Graphique temps moyen de traitement
+- [x] Documenter signature électronique (Yousign recommandé)
+- [ ] Implémenter signature électronique Yousign (nécessite compte)
+- [ ] Intégrer signature dans Convention Tripartite
+- [x] Préparer documentation déploiement Vercel
+- [ ] Checkpoint final v8.0

@@ -13,7 +13,8 @@ import {
   Clock,
   ArrowLeft,
   Download,
-  Euro
+  Euro,
+  BarChart3
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { APP_LOGO, getLoginUrl } from "@/const";
@@ -169,6 +170,12 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Link href="/stats">
+                <Button variant="outline">
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  Statistiques
+                </Button>
+              </Link>
               <Link href="/facturation">
                 <Button variant="outline">
                   <Euro className="mr-2 h-4 w-4" />
