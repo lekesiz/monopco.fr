@@ -1,0 +1,55 @@
+# MonOPCO - Liste des Tâches
+
+## Phase 1: Base de Données et Structure
+- [x] Créer schéma entreprises (SIRET, nom, NAF, OPCO, contact)
+- [x] Créer schéma dossiers (bénéficiaire, type, statut, heures, dates)
+- [x] Créer schéma documents (liens vers fichiers générés)
+- [x] Pousser migrations vers base de données
+- [x] Créer fonctions helpers dans server/db.ts
+
+## Phase 2: Page d'Accueil SEO
+- [x] Design système de couleurs (bleu Netz + blanc)
+- [x] Hero section avec titre accrocheur + CTA
+- [x] Section explicative OPCO (11 opérateurs)
+- [x] Section Bilan de Compétences (avantages)
+- [x] Section processus (3 phases)
+- [x] Section témoignages/confiance
+- [x] Section FAQ
+- [x] Footer avec coordonnées Netz
+- [x] Optimisation SEO (meta tags, structured data)
+- [x] Responsive design (mobile-first)
+
+## Phase 3: Formulaire et APIs
+- [x] Créer composant FormulaireSIRET
+- [x] Intégrer API Pappers.fr (données entreprise)
+- [x] Intégrer API CFADock (détection OPCO)
+- [x] Validation et gestion erreurs
+- [x] Formulaire bénéficiaire (nom, prénom, email)
+- [x] Sélection type service (Bilan/Formation)
+- [x] Sélection dates
+- [x] Soumission et confirmation
+- [x] Créer procédures tRPC pour APIs externes
+- [x] Tests des intégrations API
+
+## Phase 4: Dashboard Admin
+- [x] Créer layout dashboard avec sidebar
+- [x] Vue Kanban des dossiers (5 statuts)
+- [x] Filtres (OPCO, statut, date)
+- [x] Détail d'un dossier
+- [x] Suivi heures réalisées (24h Bilan)
+- [x] Génération documents (templates)
+- [x] Historique interactions
+- [x] Notifications nouveaux dossiers
+- [x] Changement statut dossier
+- [x] Export données
+
+## Phase 5: Tests et Livraison
+- [x] Tests unitaires procédures tRPC
+- [x] Tests intégration APIs
+- [x] Tests E2E formulaire
+- [x] Tests dashboard
+- [x] Vérification responsive
+- [x] Audit SEO (score >90)
+- [x] Test performance (< 2s chargement)
+- [x] Documentation utilisateur
+- [x] Checkpoint final

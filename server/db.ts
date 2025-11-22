@@ -1,6 +1,17 @@
-import { eq } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { 
+  InsertUser, 
+  users, 
+  entreprises, 
+  InsertEntreprise, 
+  Entreprise,
+  dossiers,
+  InsertDossier,
+  Dossier,
+  historique,
+  InsertHistorique
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -17,6 +28,10 @@ export async function getDb() {
   }
   return _db;
 }
+
+// ============================================================================
+// USER MANAGEMENT
+// ============================================================================
 
 export async function upsertUser(user: InsertUser): Promise<void> {
   if (!user.openId) {
@@ -89,4 +104,144 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// ============================================================================
+// ENTREPRISE MANAGEMENT
+// ============================================================================
+
+export async function createEntreprise(data: InsertEntreprise): Promise<Entreprise> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(entreprises).values(data);
+  const insertedId = Number(result[0].insertId);
+  
+  const inserted = await db.select().from(entreprises).where(eq(entreprises.id, insertedId)).limit(1);
+  if (!inserted[0]) throw new Error("Failed to retrieve inserted entreprise");
+  
+  return inserted[0];
+}
+
+export async function getEntrepriseBySiret(siret: string): Promise<Entreprise | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(entreprises).where(eq(entreprises.siret, siret)).limit(1);
+  return result[0];
+}
+
+export async function updateEntreprise(id: number, data: Partial<InsertEntreprise>): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(entreprises).set(data).where(eq(entreprises.id, id));
+}
+
+export async function getAllEntreprises(): Promise<Entreprise[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(entreprises).orderBy(desc(entreprises.createdAt));
+}
+
+// ============================================================================
+// DOSSIER MANAGEMENT
+// ============================================================================
+
+export async function createDossier(data: InsertDossier): Promise<Dossier> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(dossiers).values(data);
+  const insertedId = Number(result[0].insertId);
+  
+  const inserted = await db.select().from(dossiers).where(eq(dossiers.id, insertedId)).limit(1);
+  if (!inserted[0]) throw new Error("Failed to retrieve inserted dossier");
+  
+  return inserted[0];
+}
+
+export async function getDossierById(id: number): Promise<Dossier | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(dossiers).where(eq(dossiers.id, id)).limit(1);
+  return result[0];
+}
+
+export async function updateDossier(id: number, data: Partial<InsertDossier>): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(dossiers).set(data).where(eq(dossiers.id, id));
+}
+
+export async function getAllDossiers(): Promise<Dossier[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(dossiers).orderBy(desc(dossiers.createdAt));
+}
+
+export async function getDossiersByEntreprise(entrepriseId: number): Promise<Dossier[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(dossiers)
+    .where(eq(dossiers.entrepriseId, entrepriseId))
+    .orderBy(desc(dossiers.createdAt));
+}
+
+export async function getDossiersByStatut(statut: Dossier['statut']): Promise<Dossier[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(dossiers)
+    .where(eq(dossiers.statut, statut))
+    .orderBy(desc(dossiers.createdAt));
+}
+
+// ============================================================================
+// HISTORIQUE MANAGEMENT
+// ============================================================================
+
+export async function addHistorique(data: InsertHistorique): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.insert(historique).values(data);
+}
+
+export async function getHistoriqueByDossier(dossierId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(historique)
+    .where(eq(historique.dossierId, dossierId))
+    .orderBy(desc(historique.createdAt));
+}
+
+// ============================================================================
+// STATISTICS & ANALYTICS
+// ============================================================================
+
+export async function getDashboardStats() {
+  const db = await getDb();
+  if (!db) return {
+    totalDossiers: 0,
+    nouveaux: 0,
+    enCours: 0,
+    factures: 0,
+    totalEntreprises: 0
+  };
+
+  const allDossiers = await db.select().from(dossiers);
+  const allEntreprises = await db.select().from(entreprises);
+
+  return {
+    totalDossiers: allDossiers.length,
+    nouveaux: allDossiers.filter(d => d.statut === 'nouveau').length,
+    enCours: allDossiers.filter(d => ['phase1', 'phase2', 'phase3'].includes(d.statut)).length,
+    factures: allDossiers.filter(d => d.statut === 'facture').length,
+    totalEntreprises: allEntreprises.length
+  };
+}
