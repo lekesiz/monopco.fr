@@ -78,3 +78,16 @@
 - [ ] Pousser le code sur GitHub (manuel ou via gh CLI)
 - [ ] Créer CHANGELOG.md
 - [ ] Ajouter badges et statuts au README
+
+## Phase 8: Corrections Finales et Tests
+- [x] Corriger erreurs TypeScript dans pdfGenerator.ts
+- [x] Corriger erreurs TypeScript dans routers.ts
+- [x] Corriger erreurs TypeScript dans db.ts
+- [x] Créer guide utilisateur pour tests PDF (GUIDE_TEST_PDF.md)
+- [ ] Tester génération PDF Convention Tripartite (suivre GUIDE_TEST_PDF.md)
+- [ ] Tester génération PDF Certificat de Réalisation
+- [ ] Tester génération PDF Feuille d'Émargement
+- [ ] Tester génération PDF Demande Prise en Charge
+- [ ] Tester génération PDF Document de Synthèse
+- [x] Vérifier que tous les emails fonctionnent (confirmé par utilisateur)
+- [ ] Checkpoint final

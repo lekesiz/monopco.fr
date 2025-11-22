@@ -7,13 +7,17 @@ import { Readable } from "stream";
  */
 
 export interface EntrepriseInfo {
+  id: number;
   siret: string;
   nom: string;
-  adresse: string;
-  codePostal: string;
-  ville: string;
-  naf: string;
-  opco: string;
+  adresse: string | null;
+  codeNaf: string | null;
+  opco: string | null;
+  contactNom: string | null;
+  contactEmail: string | null;
+  contactTelephone: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface BeneficiaireInfo {
@@ -26,13 +30,22 @@ export interface BeneficiaireInfo {
 
 export interface DossierInfo {
   id: number;
+  createdAt: Date;
+  updatedAt: Date;
+  entrepriseId: number;
+  typeDossier: "bilan" | "formation";
+  beneficiaireNom: string;
+  beneficiairePrenom: string;
+  beneficiaireEmail: string;
+  beneficiaireTelephone: string | null;
   dateDebut: Date | null;
   dateFin: Date | null;
   heuresRealisees: number;
   heuresTotal: number;
   statut: string;
-  typeDossier: "bilan" | "formation";
-  entrepriseId: number;
+  notes: string | null;
+  createdBy: number | null;
+  reference?: string;
 }
 
 export interface SeanceInfo {
@@ -71,7 +84,7 @@ export async function genererConventionTripartite(
       .font("Helvetica")
       .text(
         "Établie conformément aux articles L6313-1, L6313-4 et R6313-4 à R6313-8 du Code du Travail",
-        { align: "center", italics: true }
+        { align: "center" }
       );
     doc.moveDown(2);
 
@@ -79,7 +92,7 @@ export async function genererConventionTripartite(
     doc
       .fontSize(11)
       .font("Helvetica-Bold")
-      .text(`Référence: ${dossier.reference}`, { align: "right" });
+      .text(`Référence: ${dossier.reference || `BC-${dossier.id}-${new Date().getFullYear()}`}`, { align: "right" });
     doc.moveDown(1);
 
     // ENTRE LES SOUSSIGNÉS
@@ -92,10 +105,9 @@ export async function genererConventionTripartite(
     doc.fontSize(10).font("Helvetica");
     doc.text(`Raison sociale : ${entreprise.nom}`);
     doc.text(`SIRET : ${entreprise.siret}`);
-    doc.text(`Adresse : ${entreprise.adresse}`);
-    doc.text(`${entreprise.codePostal} ${entreprise.ville}`);
-    doc.text(`Code NAF : ${entreprise.naf}`);
-    doc.text(`OPCO de rattachement : ${entreprise.opco}`);
+    doc.text(`Adresse : ${entreprise.adresse || 'Non renseignée'}`);
+    doc.text(`Code NAF : ${entreprise.codeNaf || 'Non renseigné'}`);
+    doc.text(`OPCO de rattachement : ${entreprise.opco || 'Non renseigné'}`);
     doc.moveDown(1);
 
     // 2. LE BÉNÉFICIAIRE
@@ -155,9 +167,9 @@ export async function genererConventionTripartite(
     doc.fontSize(11).font("Helvetica-Bold").text("ARTICLE 3 - DURÉE ET PÉRIODE DE RÉALISATION");
     doc.moveDown(0.3);
     doc.fontSize(10).font("Helvetica");
-    doc.text(`Durée totale : ${dossier.heuresPrevues} heures`);
+    doc.text(`Durée totale : ${dossier.heuresTotal} heures`);
     doc.text(
-      `Période de réalisation : du ${dossier.dateDebut.toLocaleDateString("fr-FR")} au ${dossier.dateFin.toLocaleDateString("fr-FR")}`
+      `Période de réalisation : du ${dossier.dateDebut?.toLocaleDateString("fr-FR")} au ${dossier.dateFin?.toLocaleDateString("fr-FR")}`
     );
     doc.text("Modalités : Séances individuelles en présentiel et/ou à distance");
     doc.moveDown(1);
@@ -304,7 +316,7 @@ export async function genererCertificatRealisation(
     doc.fontSize(10).font("Helvetica");
     doc.text(`Raison sociale : ${entreprise.nom}`);
     doc.text(`SIRET : ${entreprise.siret}`);
-    doc.text(`Adresse : ${entreprise.adresse}, ${entreprise.codePostal} ${entreprise.ville}`);
+    doc.text(`Adresse : ${entreprise.adresse || 'Non renseignée'}`);
     doc.moveDown(1);
 
     // Intitulé de l'action
@@ -318,14 +330,14 @@ export async function genererCertificatRealisation(
     doc.fontSize(11).font("Helvetica-Bold").text("PÉRIODE DE RÉALISATION :");
     doc.moveDown(0.3);
     doc.fontSize(10).font("Helvetica");
-    doc.text(`Du ${dossier.dateDebut.toLocaleDateString("fr-FR")} au ${dossier.dateFin.toLocaleDateString("fr-FR")}`);
+    doc.text(`Du ${dossier.dateDebut?.toLocaleDateString("fr-FR")} au ${dossier.dateFin?.toLocaleDateString("fr-FR")}`);
     doc.moveDown(1);
 
     // Nombre d'heures
     doc.fontSize(11).font("Helvetica-Bold").text("NOMBRE D'HEURES RÉALISÉES :");
     doc.moveDown(0.3);
     doc.fontSize(10).font("Helvetica");
-    doc.text(`${dossier.heuresRealisees} heures (sur ${dossier.heuresPrevues} heures prévues)`);
+    doc.text(`${dossier.heuresRealisees} heures (sur ${dossier.heuresTotal} heures prévues)`);
     doc.text("Note : Les heures sont indiquées en centièmes (ex: 1,5 pour 1h30)");
     doc.moveDown(1);
 
@@ -489,9 +501,9 @@ export async function genererDemandePriseEnCharge(
     doc.fontSize(10).font("Helvetica");
     doc.text(`Raison sociale : ${entreprise.nom}`);
     doc.text(`SIRET : ${entreprise.siret}`);
-    doc.text(`Code NAF : ${entreprise.naf}`);
+    doc.text(`Code NAF : ${entreprise.codeNaf}`);
     doc.text(`Adresse : ${entreprise.adresse}`);
-    doc.text(`${entreprise.codePostal} ${entreprise.ville}`);
+    doc.text(``);
     doc.text(`OPCO de rattachement : ${entreprise.opco}`);
     doc.moveDown(1);
 
@@ -520,8 +532,8 @@ export async function genererDemandePriseEnCharge(
       "Analyser les compétences professionnelles et personnelles, définir un projet professionnel et identifier les besoins en formation."
     );
     doc.moveDown(0.5);
-    doc.text(`Durée : ${dossier.heuresPrevues} heures`);
-    doc.text(`Période : du ${dossier.dateDebut.toLocaleDateString("fr-FR")} au ${dossier.dateFin.toLocaleDateString("fr-FR")}`);
+    doc.text(`Durée : ${dossier.heuresTotal} heures`);
+    doc.text(`Période : du ${dossier.dateDebut?.toLocaleDateString("fr-FR")} au ${dossier.dateFin?.toLocaleDateString("fr-FR")}`);
     doc.text("Modalités : Présentiel et/ou distanciel");
     doc.moveDown(1);
 
@@ -568,7 +580,7 @@ export async function genererDemandePriseEnCharge(
 
     // Signature
     doc.fontSize(10).font("Helvetica-Bold");
-    doc.text(`Fait à ${entreprise.ville}, le ${new Date().toLocaleDateString("fr-FR")}`);
+    doc.text(`Fait le ${new Date().toLocaleDateString("fr-FR")}`);
     doc.moveDown(1);
     doc.text("Signature et cachet de l'entreprise :");
     doc.moveDown(0.5);
@@ -611,7 +623,7 @@ export async function genererDocumentSynthese(
     doc.fontSize(12).font("Helvetica");
     doc.text(`${beneficiaire.prenom} ${beneficiaire.nom}`, { align: "center" });
     doc.moveDown(1);
-    doc.text(`Période : ${dossier.dateDebut.toLocaleDateString("fr-FR")} - ${dossier.dateFin.toLocaleDateString("fr-FR")}`, {
+    doc.text(`Période : ${dossier.dateDebut?.toLocaleDateString("fr-FR")} - ${dossier.dateFin?.toLocaleDateString("fr-FR")}`, {
       align: "center",
     });
     doc.moveDown(5);

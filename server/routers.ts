@@ -334,7 +334,7 @@ export const appRouter = router({
         const pdfBuffer = await genererConventionTripartite(entreprise, beneficiaire, dossier);
         return {
           success: true,
-          filename: `convention_${dossier.reference}.pdf`,
+          filename: `convention_BC-${dossier.id}.pdf`,
           data: pdfBuffer.toString("base64"),
         };
       }),
@@ -363,7 +363,7 @@ export const appRouter = router({
         const pdfBuffer = await genererCertificatRealisation(entreprise, beneficiaire, dossier);
         return {
           success: true,
-          filename: `certificat_${dossier.reference}.pdf`,
+          filename: `certificat_BC-${dossier.id}.pdf`,
           data: pdfBuffer.toString("base64"),
         };
       }),
@@ -405,7 +405,7 @@ export const appRouter = router({
         const pdfBuffer = await genererFeuilleEmargement(entreprise, beneficiaire, dossier, seance);
         return {
           success: true,
-          filename: `emargement_${dossier.reference}_${input.seance.date}.pdf`,
+          filename: `emargement_BC-${dossier.id}_${input.seance.date}.pdf`,
           data: pdfBuffer.toString("base64"),
         };
       }),
@@ -435,7 +435,7 @@ export const appRouter = router({
         const pdfBuffer = await genererDemandePriseEnCharge(entreprise, beneficiaire, dossier, input.montant);
         return {
           success: true,
-          filename: `demande_prise_en_charge_${dossier.reference}.pdf`,
+          filename: `demande_BC-${dossier.id}.pdf`,
           data: pdfBuffer.toString("base64"),
         };
       }),
