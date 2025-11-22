@@ -34,9 +34,12 @@ export default function Home() {
               <Link href="/dashboard">
                 <Button variant="ghost">Tableau de Bord</Button>
               </Link>
+              <Link href="/login">
+                <Button variant="outline">Se connecter</Button>
+              </Link>
               <Link href="/nouveau-dossier">
                 <Button className="shadow-blue">
-                  Démarrer un Dossier
+                  Demarrer un Dossier
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>

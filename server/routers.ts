@@ -1,11 +1,14 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { TRPCError } from "@trpc/server";
 import { runDailyReminderCheck } from "./reminderService";
+import * as jose from "jose";
+import { ENV } from "./_core/env";
+import { users } from "../drizzle/schema";
 
 // ============================================================================
 // API EXTERNE: Pappers.fr pour récupérer les données entreprise
@@ -90,6 +93,115 @@ export const appRouter = router({
         success: true,
       } as const;
     }),
+
+    // Inscription avec email/password
+    register: publicProcedure
+      .input(z.object({
+        email: z.string().email("Email invalide"),
+        password: z.string().min(8, "Le mot de passe doit contenir au moins 8 caractères"),
+        name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        try {
+          const user = await db.createUserWithPassword(input);
+
+          // Créer un token JWT pour la session
+          const secret = new TextEncoder().encode(ENV.jwtSecret);
+          const token = await new jose.SignJWT({ userId: user.id, email: user.email })
+            .setProtectedHeader({ alg: "HS256" })
+            .setExpirationTime("7d")
+            .sign(secret);
+
+          // Set cookie
+          const cookieOptions = getSessionCookieOptions(ctx.req);
+          ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
+
+          return { success: true, user };
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
+          if (errorMessage === "Email already exists") {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: "Cet email est déjà utilisé",
+            });
+          }
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Erreur lors de la création du compte",
+          });
+        }
+      }),
+
+    // Connexion avec email/password
+    login: publicProcedure
+      .input(z.object({
+        email: z.string().email("Email invalide"),
+        password: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const user = await db.verifyUserPassword(input.email, input.password);
+
+        if (!user) {
+          throw new TRPCError({
+            code: "UNAUTHORIZED",
+            message: "Email ou mot de passe incorrect",
+          });
+        }
+
+        // Créer un token JWT pour la session
+        const secret = new TextEncoder().encode(ENV.jwtSecret);
+        const token = await new jose.SignJWT({ userId: user.id, email: user.email })
+          .setProtectedHeader({ alg: "HS256" })
+          .setExpirationTime("7d")
+          .sign(secret);
+
+        // Set cookie
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
+
+        return {
+          success: true,
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+          }
+        };
+      }),
+  }),
+
+  // Router pour la gestion des utilisateurs (admin seulement)
+  users: router({
+    list: adminProcedure.query(async () => {
+      return db.getAllUsers();
+    }),
+
+    updateRole: adminProcedure
+      .input(z.object({
+        userId: z.number(),
+        role: z.enum(["admin", "manager", "consultant", "assistant"]),
+      }))
+      .mutation(async ({ input }) => {
+        await db.updateUserRole(input.userId, input.role);
+        return { success: true };
+      }),
+
+    delete: adminProcedure
+      .input(z.object({
+        userId: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Empêcher un admin de se supprimer lui-même
+        if (ctx.user.id === input.userId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Vous ne pouvez pas supprimer votre propre compte",
+          });
+        }
+        await db.deleteUser(input.userId);
+        return { success: true };
+      }),
   }),
 
   // ============================================================================

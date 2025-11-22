@@ -1,10 +1,12 @@
 import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { 
-  InsertUser, 
-  users, 
-  entreprises, 
-  InsertEntreprise, 
+import bcrypt from "bcrypt";
+import {
+  InsertUser,
+  users,
+  User,
+  entreprises,
+  InsertEntreprise,
   Entreprise,
   dossiers,
   InsertDossier,
@@ -249,4 +251,106 @@ export async function getDashboardStats() {
     factures: allDossiers.filter(d => d.statut === 'facture').length,
     totalEntreprises: allEntreprises.length
   };
+}
+
+// ============================================================================
+// USER MANAGEMENT - EMAIL/PASSWORD AUTHENTICATION
+// ============================================================================
+
+export async function createUserWithPassword(data: {
+  email: string;
+  password: string;
+  name: string;
+  role?: "admin" | "manager" | "consultant" | "assistant";
+}): Promise<{ id: number; email: string; name: string }> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Vérifier si l'email existe déjà
+  const existing = await db.select().from(users).where(eq(users.email, data.email)).limit(1);
+  if (existing.length > 0) {
+    throw new Error("Email already exists");
+  }
+
+  // Hasher le mot de passe
+  const passwordHash = await bcrypt.hash(data.password, 10);
+
+  // Créer l'utilisateur
+  const result = await db.insert(users).values({
+    email: data.email,
+    passwordHash,
+    name: data.name,
+    role: data.role || "consultant",
+    loginMethod: "email",
+    emailVerified: false,
+  });
+
+  return { id: Number(result[0].insertId), email: data.email, name: data.name };
+}
+
+export async function verifyUserPassword(email: string, password: string): Promise<User | null> {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  const user = result[0];
+  if (!user || !user.passwordHash) return null;
+
+  const isValid = await bcrypt.compare(password, user.passwordHash);
+  if (!isValid) return null;
+
+  // Mettre à jour lastSignedIn
+  await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, user.id));
+
+  return user;
+}
+
+export async function getUserById(id: number): Promise<User | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+  return result[0];
+}
+
+export async function getUserByEmail(email: string): Promise<User | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  return result[0];
+}
+
+export async function getAllUsers(): Promise<Omit<User, "passwordHash">[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  const result = await db.select({
+    id: users.id,
+    openId: users.openId,
+    name: users.name,
+    email: users.email,
+    loginMethod: users.loginMethod,
+    emailVerified: users.emailVerified,
+    role: users.role,
+    createdAt: users.createdAt,
+    updatedAt: users.updatedAt,
+    lastSignedIn: users.lastSignedIn,
+  }).from(users).orderBy(desc(users.createdAt));
+
+  return result;
+}
+
+export async function updateUserRole(userId: number, role: "admin" | "manager" | "consultant" | "assistant"): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(users).set({ role }).where(eq(users.id, userId));
+}
+
+export async function deleteUser(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(users).where(eq(users.id, userId));
 }

@@ -10,17 +10,23 @@ import NouveauDossier from "./pages/NouveauDossier";
 import Dashboard from "./pages/Dashboard";
 import Facturation from "./pages/Facturation";
 import Statistiques from "./pages/Statistiques";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import UserManagement from "./pages/UserManagement";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/login"} component={Login} />
+      <Route path={"/register"} component={Register} />
       <Route path="/dossier/:id" component={DetailDossier} />
       <Route path={"/nouveau-dossier"} component={NouveauDossier} />
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/facturation"} component={Facturation} />
       <Route path={"/stats"} component={Statistiques} />
+      <Route path={"/users"} component={UserManagement} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
