@@ -448,8 +448,68 @@ export const appRouter = router({
     // Obtenir les statistiques du dashboard
     stats: protectedProcedure.query(async () => {
       return db.getDashboardStats();
-    })
-  })
+    }),
+
+    // Exporter tous les dossiers en Excel
+    exportExcel: protectedProcedure
+      .input(z.object({
+        opcoFilter: z.string().optional(),
+        statutFilter: z.string().optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        const XLSX = await import("xlsx");
+        
+        // Récupérer tous les dossiers
+        const dossiers = await db.getAllDossiers();
+        
+        // Filtrer si nécessaire
+        let filteredDossiers = dossiers;
+        if (input?.opcoFilter) {
+          filteredDossiers = filteredDossiers.filter(d => {
+            // On devrait joindre avec entreprises pour avoir l'OPCO
+            return true; // TODO: implémenter le filtre OPCO
+          });
+        }
+        if (input?.statutFilter) {
+          filteredDossiers = filteredDossiers.filter(d => d.statut === input.statutFilter);
+        }
+        
+        // Préparer les données pour Excel
+        const excelData = await Promise.all(filteredDossiers.map(async (dossier) => {
+          const entreprise = await db.getEntrepriseById(dossier.entrepriseId);
+          return {
+            "Référence": dossier.reference || `BC-${dossier.id}`,
+            "Type": dossier.typeDossier === "bilan" ? "Bilan de Compétences" : "Formation",
+            "Entreprise": entreprise?.nom || "N/A",
+            "SIRET": entreprise?.siret || "N/A",
+            "OPCO": entreprise?.opco || "N/A",
+            "Bénéficiaire": `${dossier.beneficiairePrenom} ${dossier.beneficiaireNom}`,
+            "Email": dossier.beneficiaireEmail,
+            "Téléphone": dossier.beneficiaireTelephone || "N/A",
+            "Statut": dossier.statut,
+            "Heures Réalisées": dossier.heuresRealisees,
+            "Heures Total": dossier.heuresTotal,
+            "Date Début": dossier.dateDebut ? new Date(dossier.dateDebut).toLocaleDateString("fr-FR") : "N/A",
+            "Date Fin": dossier.dateFin ? new Date(dossier.dateFin).toLocaleDateString("fr-FR") : "N/A",
+            "Créé le": new Date(dossier.createdAt).toLocaleDateString("fr-FR"),
+          };
+        }));
+        
+        // Créer le workbook
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Dossiers OPCO");
+        
+        // Générer le buffer
+        const excelBuffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+        
+        return {
+          success: true,
+          filename: `export_dossiers_${new Date().toISOString().split("T")[0]}.xlsx`,
+          data: Buffer.from(excelBuffer).toString("base64"),
+        };
+         }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

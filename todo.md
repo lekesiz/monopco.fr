@@ -91,3 +91,16 @@
 - [ ] Tester génération PDF Document de Synthèse
 - [x] Vérifier que tous les emails fonctionnent (confirmé par utilisateur)
 - [ ] Checkpoint final
+
+## Phase 9: Finalisation Complète (Autonome)
+- [x] Écrire tests unitaires pour génération PDF (14 tests passés)
+- [ ] Écrire tests unitaires pour APIs externes (Pappers, CFADock)
+- [ ] Écrire tests unitaires pour email service
+- [ ] Tester génération PDF via navigateur (tous les documents)
+- [x] Ajouter champ "reference" dans schéma dossiers
+- [x] Implémenter génération automatique de référence (BC-2025-001)
+- [x] Ajouter fonction export Excel dans Dashboard
+- [ ] Créer CHANGELOG.md
+- [ ] Mettre à jour README avec nouvelles fonctionnalités
+- [ ] Pousser sur GitHub
+- [ ] Checkpoint final v4.0

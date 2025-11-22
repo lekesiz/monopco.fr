@@ -75,6 +75,7 @@ export const dossiers = mysqlTable("dossiers", {
   // Notes et documents
   notes: text("notes"),
   documentUrls: text("documentUrls"), // JSON array of URLs
+  reference: varchar("reference", { length: 50 }), // Référence du dossier (ex: BC-2025-001)
   
   // Métadonnées
   createdAt: timestamp("createdAt").defaultNow().notNull(),

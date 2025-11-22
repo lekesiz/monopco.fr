@@ -45,7 +45,7 @@ export interface DossierInfo {
   statut: string;
   notes: string | null;
   createdBy: number | null;
-  reference?: string;
+  reference?: string | null;
 }
 
 export interface SeanceInfo {
