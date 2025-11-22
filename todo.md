@@ -128,5 +128,5 @@
 - [x] Lister tous les dossiers facturés
 - [x] Générer facture PDF avec montants OPCO
 - [x] Ajouter coordonnées bancaires Netz
-- [ ] Tester toutes les nouvelles fonctionnalités
-- [ ] Checkpoint final v6.0
+- [x] Tester toutes les nouvelles fonctionnalités
+- [x] Checkpoint final v6.0
