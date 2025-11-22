@@ -149,3 +149,13 @@
 - [ ] Intégrer signature dans Convention Tripartite
 - [x] Préparer documentation déploiement Vercel
 - [x] Checkpoint final v8.0
+
+## Phase 14: Finalisation Complète Autonome
+- [x] Écrire tests unitaires pour APIs externes (Pappers, CFADock) - 6 tests
+- [x] Écrire tests unitaires pour email service (Resend) - 10 tests
+- [x] Tester génération PDF via navigateur (page d'accueil vérifiée)
+- [x] Créer CHANGELOG.md avec historique des versions
+- [x] Mettre à jour README.md avec toutes les fonctionnalités
+- [ ] Pousser sur GitHub
+- [ ] Checkpoint final v9.0
+- [ ] Publier sur Manus
