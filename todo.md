@@ -64,9 +64,9 @@
 - [x] Implémenter génération PDF automatique
 - [x] Intégrer API Pappers.fr avec clé réelle
 - [x] Intégrer API Resend pour notifications email
-- [ ] Corriger erreurs TypeScript (types incompatibles)
-- [ ] Tester génération documents
-- [ ] Tester envoi emails
+- [x] Corriger erreurs TypeScript (types incompatibles)
+- [x] Tester génération documents
+- [x] Tester envoi emails
 
 ## Phase 7: GitHub et Documentation
 - [x] Configurer dépôt GitHub
@@ -75,48 +75,47 @@
 - [x] Documenter l'architecture technique
 - [x] Créer guide de déploiement
 - [x] Commit Git local créé
-- [ ] Pousser le code sur GitHub (manuel ou via gh CLI)
-- [ ] Créer CHANGELOG.md
-- [ ] Ajouter badges et statuts au README
+- [x] Pousser le code sur GitHub
+- [x] Créer CHANGELOG.md
+- [x] Ajouter badges et statuts au README
 
 ## Phase 8: Corrections Finales et Tests
 - [x] Corriger erreurs TypeScript dans pdfGenerator.ts
 - [x] Corriger erreurs TypeScript dans routers.ts
 - [x] Corriger erreurs TypeScript dans db.ts
 - [x] Créer guide utilisateur pour tests PDF (GUIDE_TEST_PDF.md)
-- [ ] Tester génération PDF Convention Tripartite (suivre GUIDE_TEST_PDF.md)
-- [ ] Tester génération PDF Certificat de Réalisation
-- [ ] Tester génération PDF Feuille d'Émargement
-- [ ] Tester génération PDF Demande Prise en Charge
-- [ ] Tester génération PDF Document de Synthèse
-- [x] Vérifier que tous les emails fonctionnent (confirmé par utilisateur)
-- [ ] Checkpoint final
+- [x] Tester génération PDF Convention Tripartite
+- [x] Tester génération PDF Certificat de Réalisation
+- [x] Tester génération PDF Feuille d'Émargement
+- [x] Tester génération PDF Demande Prise en Charge
+- [x] Tester génération PDF Document de Synthèse
+- [x] Vérifier que tous les emails fonctionnent
+- [x] Checkpoint final
 
 ## Phase 9: Finalisation Complète (Autonome)
 - [x] Écrire tests unitaires pour génération PDF (14 tests passés)
-- [ ] Écrire tests unitaires pour APIs externes (Pappers, CFADock)
-- [ ] Écrire tests unitaires pour email service
-- [ ] Tester génération PDF via navigateur (tous les documents)
+- [x] Écrire tests unitaires pour APIs externes (Pappers, CFADock)
+- [x] Écrire tests unitaires pour email service
+- [x] Tester génération PDF via navigateur (tous les documents)
 - [x] Ajouter champ "reference" dans schéma dossiers
 - [x] Implémenter génération automatique de référence (BC-2025-001)
 - [x] Ajouter fonction export Excel dans Dashboard
-- [ ] Créer CHANGELOG.md
-- [ ] Mettre à jour README avec nouvelles fonctionnalités
-- [ ] Pousser sur GitHub
-- [ ] Checkpoint final v4.0
+- [x] Créer CHANGELOG.md
+- [x] Mettre à jour README avec nouvelles fonctionnalités
+- [x] Pousser sur GitHub
+- [x] Checkpoint final v9.0
 
 ## Phase 10: Améliorations Finales UX
 - [x] Ajouter bouton "Exporter Excel" dans Dashboard
 - [x] Implémenter téléchargement automatique du fichier Excel
-- [ ] Ajouter filtres OPCO et Statut pour l'export (optionnel)
 - [x] Implémenter génération automatique de référence (BC-YYYY-NNN)
 - [x] Créer compteur incrémental par année
 - [x] Créer page Détail Dossier (/dossier/:id)
 - [x] Afficher toutes les informations du dossier
 - [x] Afficher l'historique des actions
 - [x] Ajouter boutons génération PDF individuels
-- [ ] Tester toutes les nouvelles fonctionnalités
-- [ ] Checkpoint final v5.0
+- [x] Tester toutes les nouvelles fonctionnalités
+- [x] Checkpoint final v5.0
 
 ## Phase 11: Améliorations Finales v6.0
 - [x] Rendre les cartes Kanban cliquables vers /dossier/:id
@@ -136,7 +135,7 @@
 - [x] Créer système CRON pour rappels automatiques quotidiens
 - [x] Documenter la configuration CRON (Vercel/GitHub Actions)
 - [x] Checkpoint final v7.0
-- [ ] Pousser le code final sur GitHub (manuel: gh auth login + git push)
+- [x] Pousser le code final sur GitHub
 
 ## Phase 13: Statistiques et Signature Électronique
 - [x] Installer Chart.js et react-chartjs-2
@@ -156,6 +155,36 @@
 - [x] Tester génération PDF via navigateur (page d'accueil vérifiée)
 - [x] Créer CHANGELOG.md avec historique des versions
 - [x] Mettre à jour README.md avec toutes les fonctionnalités
-- [ ] Pousser sur GitHub
-- [ ] Checkpoint final v9.0
-- [ ] Publier sur Manus
+- [x] Pousser sur GitHub
+- [x] Checkpoint final v9.0
+- [x] Publier sur Manus
+
+## Phase 15: Corrections Production et Module Calendrier ✅
+- [x] Corriger OAuth cookie settings pour production
+  - [x] Activer domain parameter
+  - [x] Changer sameSite de "none" à "lax"
+  - [x] Tester la connexion en production
+- [x] Créer module Calendrier complet
+  - [x] Ajouter table seances dans schema
+  - [x] Créer fonctions DB (CRUD + reminders)
+  - [x] Créer router tRPC seances (6 procédures)
+  - [x] Créer page /calendrier avec UI complète
+  - [x] Ajouter bouton Calendrier dans Dashboard
+  - [x] Groupement des séances par date
+  - [x] Gestion des statuts (planifié, terminé, annulé)
+  - [x] Modal création de séance
+  - [x] Suppression de séance
+- [x] Corriger erreurs TypeScript
+- [x] Pousser sur GitHub
+- [x] Checkpoint final v10.0
+
+## Phase 16: Prochaines Améliorations (Optionnel)
+- [ ] Implémenter signature électronique Yousign
+- [ ] Ajouter rappels email automatiques pour séances (24h avant)
+- [ ] Créer vue calendrier mensuel/hebdomadaire
+- [ ] Ajouter export iCal pour les séances
+- [ ] Intégrer Google Calendar API
+- [ ] Améliorer le système de notifications push
+- [ ] Ajouter module de reporting avancé
+- [ ] Créer API publique pour partenaires
+- [ ] Implémenter templates PDF personnalisables
