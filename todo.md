@@ -148,4 +148,4 @@
 - [ ] Implémenter signature électronique Yousign (nécessite compte)
 - [ ] Intégrer signature dans Convention Tripartite
 - [x] Préparer documentation déploiement Vercel
-- [ ] Checkpoint final v8.0
+- [x] Checkpoint final v8.0
