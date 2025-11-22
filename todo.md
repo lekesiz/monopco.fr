@@ -117,3 +117,16 @@
 - [x] Ajouter boutons génération PDF individuels
 - [ ] Tester toutes les nouvelles fonctionnalités
 - [ ] Checkpoint final v5.0
+
+## Phase 11: Améliorations Finales v6.0
+- [x] Rendre les cartes Kanban cliquables vers /dossier/:id
+- [x] Ajouter hover effect sur les cartes
+- [x] Créer système de rappels automatiques (7 jours avant fin)
+- [x] Implémenter vérification quotidienne des dates
+- [x] Envoyer emails de rappel automatiques
+- [x] Créer page Facturation (/facturation)
+- [x] Lister tous les dossiers facturés
+- [x] Générer facture PDF avec montants OPCO
+- [x] Ajouter coordonnées bancaires Netz
+- [ ] Tester toutes les nouvelles fonctionnalités
+- [ ] Checkpoint final v6.0

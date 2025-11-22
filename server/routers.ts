@@ -5,6 +5,7 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { TRPCError } from "@trpc/server";
+import { runDailyReminderCheck } from "./reminderService";
 
 // ============================================================================
 // API EXTERNE: Pappers.fr pour récupérer les données entreprise
@@ -464,6 +465,60 @@ export const appRouter = router({
           data: pdfBuffer.toString("base64"),
         };
       }),
+  }),
+
+  // ============================================================================
+  // FACTURATION ROUTER
+  // ============================================================================
+  facturation: router({
+    // Générer une facture PDF pour un dossier
+    genererFacture: protectedProcedure
+      .input(z.object({ dossierId: z.number() }))
+      .query(async ({ input }) => {
+        const { genererFacturePDF } = await import("./factureGenerator");
+        const dossier = await db.getDossierById(input.dossierId);
+        if (!dossier) throw new TRPCError({ code: "NOT_FOUND", message: "Dossier non trouvé" });
+
+        const entreprise = await db.getEntrepriseById(dossier.entrepriseId);
+        if (!entreprise) throw new TRPCError({ code: "NOT_FOUND", message: "Entreprise non trouvée" });
+
+        const montant = dossier.typeDossier === "bilan" ? 2000 : 1500;
+        const numero = `FACT-${new Date().getFullYear()}-${String(dossier.id).padStart(4, "0")}`;
+
+        const pdfBuffer = await genererFacturePDF({
+          numero,
+          date: new Date(),
+          dossier: {
+            reference: dossier.reference || `BC-${dossier.id}`,
+            typeDossier: dossier.typeDossier,
+            beneficiaireNom: dossier.beneficiaireNom,
+            beneficiairePrenom: dossier.beneficiairePrenom
+          },
+          entreprise: {
+            nom: entreprise.nom,
+            siret: entreprise.siret,
+            adresse: entreprise.adresse
+          },
+          montant
+        });
+
+        return {
+          success: true,
+          filename: `facture_${dossier.reference || `BC-${dossier.id}`}.pdf`,
+          data: pdfBuffer.toString("base64")
+        };
+      })
+  }),
+
+  // ============================================================================
+  // REMINDERS ROUTER (Rappels automatiques)
+  // ============================================================================
+  reminders: router({
+    // Vérifier et envoyer les rappels (peut être appelé manuellement ou via cron)
+    checkAndSend: protectedProcedure.mutation(async () => {
+      await runDailyReminderCheck();
+      return { success: true };
+    })
   }),
 
   // ============================================================================

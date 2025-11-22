@@ -61,7 +61,6 @@ const STATUT_CONFIG: Record<Statut, { label: string; color: string; icon: any }>
 
 export default function Dashboard() {
   const { user, loading, isAuthenticated } = useAuth();
-  const [, setLocation] = useLocation();
   const [selectedDossier, setSelectedDossier] = useState<any>(null);
   const [heuresInput, setHeuresInput] = useState("");
   const [notesInput, setNotesInput] = useState("");
@@ -282,11 +281,8 @@ export default function Dashboard() {
                   {/* Dossiers */}
                   <div className="space-y-3">
                     {dossiersList.map((dossier) => (
-                      <Card
-                        key={dossier.id}
-                        className="cursor-pointer hover:shadow-md transition-shadow"
-                        onClick={() => setSelectedDossier(dossier)}
-                      >
+                      <Link key={dossier.id} href={`/dossier/${dossier.id}`}>
+                        <Card className="cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200">
                         <CardHeader className="pb-3">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
@@ -307,7 +303,8 @@ export default function Dashboard() {
                             </div>
                           )}
                         </CardContent>
-                      </Card>
+                        </Card>
+                      </Link>
                     ))}
                   </div>
                 </div>
