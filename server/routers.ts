@@ -14,7 +14,7 @@ async function fetchEntrepriseData(siret: string) {
   try {
     // API Pappers.fr (nécessite une clé API - à configurer via secrets)
     const apiKey = process.env.PAPPERS_API_KEY;
-    
+
     if (!apiKey) {
       // Fallback: Données simulées pour le développement
       console.warn("[Pappers] API key not configured, using mock data");
@@ -30,8 +30,45 @@ async function fetchEntrepriseData(siret: string) {
       `https://api.pappers.fr/v2/entreprise?siret=${siret}&api_token=${apiKey}`
     );
 
+    // Check if response is JSON before parsing
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const errorText = await response.text();
+      console.error(`[Pappers] API returned non-JSON response (${response.status}): ${errorText.substring(0, 200)}`);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "L'API Pappers a retourné une réponse invalide. Vérifiez la clé API et les limites de requêtes."
+      });
+    }
+
     if (!response.ok) {
-      throw new Error("Failed to fetch from Pappers API");
+      const errorData = await response.json().catch(() => ({}));
+      console.error(`[Pappers] API error (${response.status}):`, errorData);
+
+      // Handle specific Pappers API errors
+      if (response.status === 401) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Clé API Pappers invalide ou expirée"
+        });
+      }
+      if (response.status === 404) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Aucune entreprise trouvée pour ce SIRET"
+        });
+      }
+      if (response.status === 429) {
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: "Limite de requêtes API atteinte. Veuillez réessayer plus tard."
+        });
+      }
+
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: `Erreur Pappers API: ${errorData.message || 'Erreur inconnue'}`
+      });
     }
 
     const data = await response.json();
@@ -43,6 +80,11 @@ async function fetchEntrepriseData(siret: string) {
       dirigeant: data.representants?.[0]?.nom_complet || ""
     };
   } catch (error) {
+    // Re-throw TRPCErrors as-is
+    if (error instanceof TRPCError) {
+      throw error;
+    }
+
     console.error("[Pappers] Error:", error);
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
@@ -61,8 +103,15 @@ async function detectOPCO(siret: string): Promise<string> {
 
     if (!response.ok) {
       // Fallback: Détection basique par code NAF
-      console.warn("[CFADock] API failed, using NAF-based detection");
+      console.warn(`[CFADock] API returned ${response.status}, using fallback`);
       return "OPCO EP"; // Default fallback
+    }
+
+    // Check if response is JSON before parsing
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.warn("[CFADock] API returned non-JSON response, using fallback");
+      return "OPCO EP";
     }
 
     const data = await response.json();
