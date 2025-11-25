@@ -21,7 +21,8 @@
     "@vercel/node": "^3.0.0",
     "resend": "^6.5.2",
     "jsonwebtoken": "^9.0.2",
-    "pdfkit": "^0.15.0"
+    "pdfkit": "^0.15.0",
+    "exceljs": "^4.4.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
