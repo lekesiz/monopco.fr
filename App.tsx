@@ -12,6 +12,7 @@ import MentionsLegales from './pages/MentionsLegales';
 import CGU from './pages/CGU';
 import PolitiqueConfidentialite from './pages/PolitiqueConfidentialite';
 import ForgotPassword from './pages/ForgotPassword';
+import NotFound from './pages/NotFound';
 import { getCurrentUser } from './services/authService';
 
 function AppContent() {
@@ -43,10 +44,8 @@ function AppContent() {
       <Route path="/cgu" component={CGU} />
       <Route path="/politique-confidentialite" component={PolitiqueConfidentialite} />
       <Route path="/forgot-password" component={ForgotPassword} />
-      {/* Fallback */}
-      <Route>
-        {isAuth ? <Dashboard /> : <Home />}
-      </Route>
+      {/* Fallback - 404 */}
+      <Route component={NotFound} />
     </Switch>
   );
 }

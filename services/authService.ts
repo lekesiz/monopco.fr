@@ -8,8 +8,9 @@ const MOCK_USERS: User[] = [
   {
     id: '1',
     email: 'admin@monopco.fr',
-    name: 'Administrateur',
-    role: UserRole.ADMIN
+    name: 'Pierre Durand (Admin OPCO)',
+    role: UserRole.ADMIN,
+    companyName: 'OPCO Commerce'
   },
   {
     id: '2',

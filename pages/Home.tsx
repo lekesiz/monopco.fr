@@ -303,7 +303,7 @@ export default function Home() {
             Rejoignez les entreprises qui font confiance à MonOPCO
           </p>
           <Link href="/basvuru">
-            <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-6">
+            <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-6 font-semibold shadow-xl">
               Commencer Maintenant
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
