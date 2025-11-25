@@ -16,7 +16,7 @@ function AppContent() {
 
   useEffect(() => {
     const user = getCurrentUser();
-    const publicPaths = ['/login', '/home', '/'];
+    const publicPaths = ['/login', '/home', '/', '/basvuru'];
     if (!user && !publicPaths.includes(location)) {
       navigate('/home');
     } else {
