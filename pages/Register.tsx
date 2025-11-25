@@ -105,15 +105,11 @@ export default function Register() {
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
-          nom: formData.nom,
-          prenom: formData.prenom,
-          role: formData.role,
-          entreprise: formData.role === 'entreprise' ? {
-            nom: formData.nomEntreprise,
-            siret: formData.siret.replace(/\s/g, ''),
-            adresse: formData.adresse,
-            telephone: formData.telephone
-          } : undefined
+          contact_nom: `${formData.prenom} ${formData.nom}`,
+          entreprise_siret: formData.siret.replace(/\s/g, ''),
+          entreprise_nom: formData.nomEntreprise,
+          entreprise_adresse: formData.adresse,
+          entreprise_telephone: formData.telephone
         })
       });
 
