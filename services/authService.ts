@@ -1,69 +1,201 @@
 import { User, UserRole } from '../types';
 
-// Mocked logged in user for demo purposes
-// In a real app, this would check localStorage for a JWT
+// API base URL
+const API_BASE = '/api';
+
+// Current user and token
 let currentUser: User | null = null;
+let authToken: string | null = null;
 
-const MOCK_USERS: User[] = [
-  {
-    id: '1',
-    email: 'admin@monopco.fr',
-    name: 'Pierre Durand (Admin OPCO)',
-    role: UserRole.ADMIN,
-    companyName: 'OPCO Commerce'
-  },
-  {
-    id: '2',
-    email: 'rh@techsolutions.fr',
-    name: 'Sophie Martin (RH)',
-    role: UserRole.COMPANY,
-    companyName: 'TechSolutions SAS',
-    siret: '123 456 789 00012'
-  },
-  {
-    id: '3',
-    email: 'jean.dupont@techsolutions.fr',
-    name: 'Jean Dupont',
-    role: UserRole.EMPLOYEE,
-    companyName: 'TechSolutions SAS'
+/**
+ * Initialize auth from localStorage
+ */
+const initAuth = () => {
+  const stored = localStorage.getItem('monopco_user');
+  const token = localStorage.getItem('monopco_token');
+  
+  if (stored && token) {
+    currentUser = JSON.parse(stored);
+    authToken = token;
   }
-];
-
-export const login = async (email: string): Promise<User> => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const user = MOCK_USERS.find(u => u.email === email);
-      if (user) {
-        currentUser = user;
-        localStorage.setItem('monopco_user', JSON.stringify(user));
-        resolve(user);
-      } else {
-        // Default fallback for demo if email doesn't match predefined
-        const fallbackUser = {
-            ...MOCK_USERS[1],
-            email: email,
-            name: email.split('@')[0]
-        };
-        currentUser = fallbackUser;
-        localStorage.setItem('monopco_user', JSON.stringify(fallbackUser));
-        resolve(fallbackUser);
-      }
-    }, 800);
-  });
 };
 
+// Initialize on load
+initAuth();
+
+/**
+ * Get auth headers for API requests
+ */
+export const getAuthHeaders = () => {
+  if (!authToken) {
+    initAuth();
+  }
+  
+  return {
+    'Content-Type': 'application/json',
+    ...(authToken && { 'Authorization': `Bearer ${authToken}` })
+  };
+};
+
+/**
+ * Login with email and password
+ */
+export const login = async (email: string, password: string): Promise<User> => {
+  try {
+    const response = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Erreur de connexion');
+    }
+
+    // Store user and token
+    currentUser = {
+      id: data.user.id.toString(),
+      email: data.user.email,
+      name: `${data.user.prenom || ''} ${data.user.nom || ''}`.trim() || data.user.email,
+      role: data.user.role === 'admin' ? UserRole.ADMIN : UserRole.COMPANY,
+      companyName: data.user.entreprise_nom || undefined,
+      siret: data.user.entreprise_siret || undefined
+    };
+
+    authToken = data.token;
+
+    localStorage.setItem('monopco_user', JSON.stringify(currentUser));
+    localStorage.setItem('monopco_token', authToken);
+
+    return currentUser;
+  } catch (error) {
+    console.error('Login error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Register new user
+ */
+export const register = async (
+  email: string,
+  password: string,
+  nom: string,
+  prenom: string,
+  entreprise_siret?: string
+): Promise<User> => {
+  try {
+    const response = await fetch(`${API_BASE}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, nom, prenom, entreprise_siret })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Erreur lors de l\'inscription');
+    }
+
+    // Store user and token
+    currentUser = {
+      id: data.user.id.toString(),
+      email: data.user.email,
+      name: `${prenom} ${nom}`.trim(),
+      role: UserRole.COMPANY,
+      companyName: undefined,
+      siret: entreprise_siret
+    };
+
+    authToken = data.token;
+
+    localStorage.setItem('monopco_user', JSON.stringify(currentUser));
+    localStorage.setItem('monopco_token', authToken);
+
+    return currentUser;
+  } catch (error) {
+    console.error('Register error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Forgot password
+ */
+export const forgotPassword = async (email: string): Promise<void> => {
+  try {
+    const response = await fetch(`${API_BASE}/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Erreur lors de la demande de réinitialisation');
+    }
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Reset password
+ */
+export const resetPassword = async (token: string, password: string): Promise<void> => {
+  try {
+    const response = await fetch(`${API_BASE}/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, password })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Erreur lors de la réinitialisation');
+    }
+  } catch (error) {
+    console.error('Reset password error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Logout
+ */
 export const logout = () => {
   currentUser = null;
+  authToken = null;
   localStorage.removeItem('monopco_user');
+  localStorage.removeItem('monopco_token');
   window.location.hash = '/login';
 };
 
+/**
+ * Get current user
+ */
 export const getCurrentUser = (): User | null => {
   if (currentUser) return currentUser;
-  const stored = localStorage.getItem('monopco_user');
-  if (stored) {
-    currentUser = JSON.parse(stored);
-    return currentUser;
-  }
-  return null;
+  initAuth();
+  return currentUser;
+};
+
+/**
+ * Check if user is authenticated
+ */
+export const isAuthenticated = (): boolean => {
+  return !!getCurrentUser() && !!authToken;
+};
+
+/**
+ * Check if user is admin
+ */
+export const isAdmin = (): boolean => {
+  const user = getCurrentUser();
+  return user?.role === UserRole.ADMIN;
 };
