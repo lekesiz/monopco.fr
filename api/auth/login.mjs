@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
-import { getUser } from '../_lib/db.mjs';
+import { query } from '../_lib/db.mjs';
+import { generateToken } from '../_lib/auth.mjs';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -14,11 +15,13 @@ export default async function handler(req, res) {
     }
 
     // Get user from database
-    const user = await getUser(email);
+    const result = await query('SELECT * FROM users WHERE email = $1', [email]);
 
-    if (!user) {
+    if (result.rows.length === 0) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+
+    const user = result.rows[0];
 
     // Verify password (using password_hash column)
     const isValid = await bcrypt.compare(password, user.password_hash);
@@ -27,11 +30,15 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Return user data (without password_hash)
+    // Generate JWT token
+    const token = generateToken(user);
+
+    // Return user data (without password_hash) and token
     const { password_hash: _, ...userData } = user;
 
     return res.status(200).json({
       success: true,
+      token,
       user: userData,
       message: 'Login successful'
     });

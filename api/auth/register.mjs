@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { query } from '../_lib/db.mjs';
+import { generateToken } from '../_lib/auth.mjs';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -39,8 +40,12 @@ export default async function handler(req, res) {
 
     const user = result.rows[0];
 
+    // Generate JWT token
+    const token = generateToken(user);
+
     return res.status(201).json({
       success: true,
+      token,
       user,
       message: 'User registered successfully'
     });
