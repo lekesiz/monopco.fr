@@ -66,17 +66,15 @@ export default function Home() {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="text-lg px-8 py-6 border-gray-300"
-                onClick={() => {
-                  const opcoSection = document.getElementById('opco-section');
-                  opcoSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }}
-              >
-                En savoir plus
-              </Button>
+              <a href="#opco-section">
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="text-lg px-8 py-6 border-gray-300"
+                >
+                  En savoir plus
+                </Button>
+              </a>
             </div>
             
             {/* Stats */}
