@@ -17,6 +17,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.62.11
         version: 5.90.11(react@19.2.0)
+      '@types/pdfkit':
+        specifier: ^0.17.3
+        version: 0.17.3
       '@vercel/blob':
         specifier: ^2.0.0
         version: 2.0.0
@@ -1073,6 +1076,9 @@ packages:
 
   '@types/node@22.19.1':
     resolution: {integrity: sha512-LCCV0HdSZZZb34qifBsyWlUmok6W7ouER+oQIGBScS8EsZsQbrtFTUrDX4hOl+CS6p7cnNC4td+qrSVGSCTUfQ==}
+
+  '@types/pdfkit@0.17.3':
+    resolution: {integrity: sha512-E4tp2qFaghqfS4K5TR4Gn1uTIkg0UAkhUgvVIszr5cS6ZmbioPWEkvhNDy3GtR9qdKC8DLQAnaaMlTcf346VsA==}
 
   '@types/pg@8.15.6':
     resolution: {integrity: sha512-NoaMtzhxOrubeL/7UZuNTrejB4MPAJ0RpxZqXQf2qXuVlTPuG6Y8p4u9dKRaue4yjmC7ZhzVO2/Yyyn25znrPQ==}
@@ -4375,6 +4381,10 @@ snapshots:
   '@types/node@22.19.1':
     dependencies:
       undici-types: 6.21.0
+
+  '@types/pdfkit@0.17.3':
+    dependencies:
+      '@types/node': 22.19.1
 
   '@types/pg@8.15.6':
     dependencies:
