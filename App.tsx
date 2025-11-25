@@ -6,6 +6,7 @@ import { Dossiers } from './pages/Dossiers';
 import { DossierForm } from './pages/DossierForm';
 import { Login } from './pages/Login';
 import Home from './pages/Home';
+import DetailDossier from './pages/DetailDossier';
 import { getCurrentUser } from './services/authService';
 
 function AppContent() {
@@ -31,6 +32,7 @@ function AppContent() {
       <Route path="/dossiers" component={Dossiers} />
       <Route path="/dossier/new" component={DossierForm} />
       <Route path="/dossier/edit/:id" component={DossierForm} />
+      <Route path="/dossier/:id" component={DetailDossier} />
       {/* Fallback */}
       <Route>
         {isAuth ? <Dashboard /> : <Home />}
