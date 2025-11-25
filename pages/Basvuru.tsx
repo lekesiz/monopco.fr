@@ -76,7 +76,7 @@ export default function Basvuru() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type_dossier: 'formation',
+          type_dossier: typeFormation || 'formation',
           beneficiaire_nom: formData.beneficiaire_nom,
           beneficiaire_prenom: formData.beneficiaire_prenom,
           beneficiaire_email: formData.beneficiaire_email,
@@ -140,7 +140,7 @@ export default function Basvuru() {
             <div className="grid md:grid-cols-2 gap-6">
               {/* Bilan de Compétences */}
               <button
-                onClick={() => window.open('https://bilancompetence.ai', '_blank')}
+                onClick={() => { setTypeFormation('bilan'); setStep(1); }}
                 className="group relative bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-8 hover:border-blue-500 hover:shadow-xl transition-all"
               >
                 <div className="absolute top-4 right-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">
@@ -155,9 +155,18 @@ export default function Basvuru() {
                 <p className="text-gray-600 mb-4 text-sm text-center">
                   Accompagnement de 24h pour analyser vos compétences et définir votre projet professionnel
                 </p>
-                <div className="text-center text-sm text-blue-600 font-semibold group-hover:underline">
-                  En savoir plus sur BilanCompetence.ai →
+                <div className="text-center text-sm text-blue-600 font-semibold">
+                  Continuer avec un Bilan →
                 </div>
+                <a 
+                  href="https://bilancompetence.ai" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="block mt-3 text-xs text-blue-500 hover:underline text-center"
+                >
+                  En savoir plus sur BilanCompetence.ai
+                </a>
               </button>
 
               {/* Formation */}
