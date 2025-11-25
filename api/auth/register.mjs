@@ -26,12 +26,12 @@ export default async function handler(req, res) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert user
+    // Insert user (using passwordHash column for compatibility)
     const result = await query(
-      `INSERT INTO users (email, password, first_name, last_name, company_name, siret, role, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
-       RETURNING id, email, first_name, last_name, company_name, siret, role, created_at`,
-      [email, hashedPassword, firstName || null, lastName || null, companyName || null, siret || null, role]
+      `INSERT INTO users (email, "passwordHash", name, role, "createdAt", "updatedAt")
+       VALUES ($1, $2, $3, $4, NOW(), NOW())
+       RETURNING id, email, name, role, "createdAt"`,
+      [email, hashedPassword, `${firstName || ''} ${lastName || ''}`.trim() || null, role]
     );
 
     const user = result.rows[0];
