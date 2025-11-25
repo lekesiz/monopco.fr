@@ -17,6 +17,7 @@ import { Profile } from './pages/Profile';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { AdminDossiers } from './pages/AdminDossiers';
 import { AdminUsers } from './pages/AdminUsers';
+import Users from './pages/Users';
 import NotFound from './pages/NotFound';
 import { getCurrentUser } from './services/authService';
 
@@ -55,6 +56,7 @@ function AppContent() {
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/dossiers" component={AdminDossiers} />
       <Route path="/admin/users" component={AdminUsers} />
+      <Route path="/users" component={Users} />
       {/* Fallback - 404 */}
       <Route component={NotFound} />
     </Switch>
