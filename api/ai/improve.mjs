@@ -23,7 +23,6 @@ export default async function handler(req, res) {
     }
 
     const genAI = new GoogleGenAI({ apiKey });
-    const model = genAI.models;
 
     const prompt = `Tu es un expert en financement de formation professionnelle (OPCO) en France.
 Améliore et reformule le texte de justification suivant pour qu'il soit professionnel, convaincant et maximise les chances d'acceptation par l'OPCO.
@@ -37,7 +36,7 @@ Texte brut à améliorer:
 
 Réponds uniquement avec le texte amélioré, sans introduction ni conclusion.`;
 
-    const result = await model.generateContent({
+    const result = await genAI.models.generateContent({
       model: 'gemini-2.0-flash-exp',
       contents: prompt
     });

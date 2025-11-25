@@ -24,7 +24,6 @@ export default async function handler(req, res) {
     }
 
     const genAI = new GoogleGenAI({ apiKey });
-    const model = genAI.models;
 
     const prompt = `Analyse cette demande de financement de formation au regard des critères standards des OPCOs (pertinence, coût, durée).
 
@@ -39,7 +38,7 @@ Réponds au format JSON:
   "advice": "string (court conseil en français)"
 }`;
 
-    const result = await model.generateContent({
+    const result = await genAI.models.generateContent({
       model: 'gemini-2.0-flash-exp',
       contents: prompt,
       config: {
