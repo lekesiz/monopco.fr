@@ -13,6 +13,7 @@ import CGU from './pages/CGU';
 import PolitiqueConfidentialite from './pages/PolitiqueConfidentialite';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import { Profile } from './pages/Profile';
 import NotFound from './pages/NotFound';
 import { getCurrentUser } from './services/authService';
 
@@ -46,6 +47,7 @@ function AppContent() {
       <Route path="/politique-confidentialite" component={PolitiqueConfidentialite} />
       <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/reset-password" component={ResetPassword} />
+      <Route path="/profile" component={Profile} />
       {/* Fallback - 404 */}
       <Route component={NotFound} />
     </Switch>
