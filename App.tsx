@@ -12,6 +12,7 @@ import MentionsLegales from './pages/MentionsLegales';
 import CGU from './pages/CGU';
 import PolitiqueConfidentialite from './pages/PolitiqueConfidentialite';
 import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import NotFound from './pages/NotFound';
 import { getCurrentUser } from './services/authService';
 
@@ -21,7 +22,7 @@ function AppContent() {
 
   useEffect(() => {
     const user = getCurrentUser();
-    const publicPaths = ['/login', '/home', '/', '/basvuru', '/mentions-legales', '/cgu', '/politique-confidentialite', '/forgot-password'];
+    const publicPaths = ['/login', '/home', '/', '/basvuru', '/mentions-legales', '/cgu', '/politique-confidentialite', '/forgot-password', '/reset-password'];
     if (!user && !publicPaths.includes(location)) {
       navigate('/home');
     } else {
@@ -44,6 +45,7 @@ function AppContent() {
       <Route path="/cgu" component={CGU} />
       <Route path="/politique-confidentialite" component={PolitiqueConfidentialite} />
       <Route path="/forgot-password" component={ForgotPassword} />
+      <Route path="/reset-password" component={ResetPassword} />
       {/* Fallback - 404 */}
       <Route component={NotFound} />
     </Switch>
