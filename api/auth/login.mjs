@@ -20,15 +20,15 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Verify password
-    const isValid = await bcrypt.compare(password, user.password);
+    // Verify password (using password_hash column)
+    const isValid = await bcrypt.compare(password, user.password_hash);
 
     if (!isValid) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Return user data (without password)
-    const { password: _, ...userData } = user;
+    // Return user data (without password_hash)
+    const { password_hash: _, ...userData } = user;
 
     return res.status(200).json({
       success: true,

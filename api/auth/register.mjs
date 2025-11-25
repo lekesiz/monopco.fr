@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { email, password, firstName, lastName, companyName, siret, role = 'user' } = req.body;
+    const { email, password, firstName, lastName, role = 'user' } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
@@ -26,12 +26,15 @@ export default async function handler(req, res) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert user
+    // Combine first and last name
+    const fullName = `${firstName || ''} ${lastName || ''}`.trim() || null;
+
+    // Insert user (using correct snake_case column names)
     const result = await query(
-      `INSERT INTO users (email, password, name, role, "createdAt", "updatedAt")
-       VALUES ($1, $2, $3, $4, NOW(), NOW())
-       RETURNING id, email, name, role, "createdAt"`,
-      [email, hashedPassword, `${firstName || ''} ${lastName || ''}`.trim() || null, role]
+      `INSERT INTO users (email, password_hash, nom, role, created_at)
+       VALUES ($1, $2, $3, $4, NOW())
+       RETURNING id, email, nom, role, created_at`,
+      [email, hashedPassword, fullName, role]
     );
 
     const user = result.rows[0];
