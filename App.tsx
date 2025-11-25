@@ -5,6 +5,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Dossiers } from './pages/Dossiers';
 import { DossierForm } from './pages/DossierForm';
 import { Login } from './pages/Login';
+import Home from './pages/Home';
 import { getCurrentUser } from './services/authService';
 
 function AppContent() {
@@ -13,8 +14,9 @@ function AppContent() {
 
   useEffect(() => {
     const user = getCurrentUser();
-    if (!user && location !== '/login') {
-      navigate('/login');
+    const publicPaths = ['/login', '/home', '/'];
+    if (!user && !publicPaths.includes(location)) {
+      navigate('/home');
     } else {
       setIsAuth(!!user);
     }
@@ -22,14 +24,16 @@ function AppContent() {
 
   return (
     <Switch>
+      <Route path="/" component={Home} />
+      <Route path="/home" component={Home} />
       <Route path="/login" component={Login} />
-      <Route path="/" component={Dashboard} />
+      <Route path="/dashboard" component={Dashboard} />
       <Route path="/dossiers" component={Dossiers} />
       <Route path="/dossier/new" component={DossierForm} />
       <Route path="/dossier/edit/:id" component={DossierForm} />
       {/* Fallback */}
       <Route>
-        {isAuth ? <Dashboard /> : <Login />}
+        {isAuth ? <Dashboard /> : <Home />}
       </Route>
     </Switch>
   );
