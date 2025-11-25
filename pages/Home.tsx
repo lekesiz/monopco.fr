@@ -60,9 +60,9 @@ export default function Home() {
               formations professionnelles avec financement OPCO
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/login">
+              <Link href="/basvuru">
                 <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-8 py-6">
-                  Créer un Dossier
+                  Démarrer ma demande
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
@@ -294,7 +294,7 @@ export default function Home() {
           <p className="text-xl mb-8 opacity-90">
             Rejoignez les entreprises qui font confiance à MonOPCO
           </p>
-          <Link href="/login">
+          <Link href="/basvuru">
             <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-6">
               Commencer Maintenant
               <ArrowRight className="ml-2 h-5 w-5" />
