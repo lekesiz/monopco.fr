@@ -183,7 +183,7 @@ function detectOPCOByNAF(codeNaf) {
     '86': 'OPCO Santé', '87': 'OPCO Santé', '88': 'OPCO Santé',
     
     // OPCO Commerce
-    '45': 'OPCO Commerce', '46': 'OPCO Commerce', '47': 'OPCO Commerce',
+    '45': 'OPCOMMERCE', '46': 'OPCOMMERCE', '47': 'OPCOMMERCE', '62': 'OPCOMMERCE', '63': 'OPCOMMERCE',
     
     // OPCO Mobilités
     '49': 'OPCO Mobilités', '50': 'OPCO Mobilités', '51': 'OPCO Mobilités',
