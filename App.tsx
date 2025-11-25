@@ -14,6 +14,9 @@ import PolitiqueConfidentialite from './pages/PolitiqueConfidentialite';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import { Profile } from './pages/Profile';
+import { AdminDashboard } from './pages/AdminDashboard';
+import { AdminDossiers } from './pages/AdminDossiers';
+import { AdminUsers } from './pages/AdminUsers';
 import NotFound from './pages/NotFound';
 import { getCurrentUser } from './services/authService';
 
@@ -48,6 +51,10 @@ function AppContent() {
       <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/reset-password" component={ResetPassword} />
       <Route path="/profile" component={Profile} />
+      <Route path="/admin" component={AdminDashboard} />
+      <Route path="/admin/dashboard" component={AdminDashboard} />
+      <Route path="/admin/dossiers" component={AdminDossiers} />
+      <Route path="/admin/users" component={AdminUsers} />
       {/* Fallback - 404 */}
       <Route component={NotFound} />
     </Switch>
