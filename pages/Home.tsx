@@ -34,7 +34,7 @@ export default function Home() {
                 <Button variant="ghost">Connexion</Button>
               </Link>
               <Link href="/login">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Button className="bg-blue-700 hover:bg-blue-800 text-white shadow-lg">
                   Démarrer
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -61,7 +61,7 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/basvuru">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-8 py-6">
+                <Button size="lg" className="bg-blue-700 hover:bg-blue-800 text-white shadow-lg text-lg px-8 py-6">
                   Démarrer ma demande
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -213,7 +213,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="bg-blue-600 text-white rounded-lg p-8">
+            <div className="bg-blue-700 text-white rounded-lg p-8">
               <h3 className="text-2xl font-bold mb-4">Pourquoi choisir le Bilan d'abord ?</h3>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="flex gap-3">
@@ -286,7 +286,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-blue-600 text-white">
+      <section className="py-20 bg-blue-700 text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Prêt à simplifier vos dossiers OPCO ?

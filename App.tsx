@@ -8,6 +8,9 @@ import { Login } from './pages/Login';
 import Home from './pages/Home';
 import DetailDossier from './pages/DetailDossier';
 import Basvuru from './pages/Basvuru';
+import MentionsLegales from './pages/MentionsLegales';
+import CGU from './pages/CGU';
+import PolitiqueConfidentialite from './pages/PolitiqueConfidentialite';
 import { getCurrentUser } from './services/authService';
 
 function AppContent() {
@@ -16,7 +19,7 @@ function AppContent() {
 
   useEffect(() => {
     const user = getCurrentUser();
-    const publicPaths = ['/login', '/home', '/', '/basvuru'];
+    const publicPaths = ['/login', '/home', '/', '/basvuru', '/mentions-legales', '/cgu', '/politique-confidentialite'];
     if (!user && !publicPaths.includes(location)) {
       navigate('/home');
     } else {
@@ -35,6 +38,9 @@ function AppContent() {
       <Route path="/dossier/edit/:id" component={DossierForm} />
       <Route path="/dossier/:id" component={DetailDossier} />
       <Route path="/basvuru" component={Basvuru} />
+      <Route path="/mentions-legales" component={MentionsLegales} />
+      <Route path="/cgu" component={CGU} />
+      <Route path="/politique-confidentialite" component={PolitiqueConfidentialite} />
       {/* Fallback */}
       <Route>
         {isAuth ? <Dashboard /> : <Home />}

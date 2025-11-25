@@ -14,7 +14,7 @@ export const Login: React.FC = () => {
     setIsLoading(true);
     await login(email);
     setIsLoading(false);
-    navigate('/');
+    navigate('/dashboard');
   };
 
   return (
