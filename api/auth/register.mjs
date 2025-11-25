@@ -21,12 +21,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { email, password, contact_nom, entreprise_siret, entreprise_nom } = req.body;
+    const { email, password, prenom, nom, entreprise_siret, entreprise_nom, adresse, telephone } = req.body;
 
     // Validation
-    if (!email || !password || !contact_nom) {
+    if (!email || !password || !prenom || !nom) {
       return res.status(400).json({ 
-        error: 'Email, mot de passe et nom de contact sont requis' 
+        error: 'Email, mot de passe, prénom et nom sont requis' 
       });
     }
 
@@ -70,18 +70,17 @@ export default async function handler(req, res) {
     // Insert user into database
     const result = await query(
       `INSERT INTO users 
-       (email, password_hash, contact_nom, entreprise_siret, entreprise_nom, role, email_verified, verification_token) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
-       RETURNING id, email, contact_nom, entreprise_siret, entreprise_nom, role, email_verified, created_at`,
+       (email, password, first_name, last_name, company_name, siret, role) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) 
+       RETURNING id, email, first_name, last_name, company_name, siret, role, created_at`,
       [
         email.toLowerCase(),
         password_hash,
-        contact_nom,
-        entreprise_siret || null,
+        prenom,
+        nom,
         entreprise_nom || null,
-        'user',
-        false,
-        verification_token
+        entreprise_siret || null,
+        'entreprise'
       ]
     );
 
@@ -118,9 +117,10 @@ export default async function handler(req, res) {
       user: {
         id: user.id,
         email: user.email,
-        contact_nom: user.contact_nom,
-        entreprise_siret: user.entreprise_siret,
-        entreprise_nom: user.entreprise_nom,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        company_name: user.company_name,
+        siret: user.siret,
         role: user.role,
         email_verified: user.email_verified
       },

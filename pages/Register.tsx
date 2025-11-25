@@ -105,11 +105,12 @@ export default function Register() {
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
-          contact_nom: `${formData.prenom} ${formData.nom}`,
+          prenom: formData.prenom,
+          nom: formData.nom,
           entreprise_siret: formData.siret.replace(/\s/g, ''),
           entreprise_nom: formData.nomEntreprise,
-          entreprise_adresse: formData.adresse,
-          entreprise_telephone: formData.telephone
+          adresse: formData.adresse,
+          telephone: formData.telephone
         })
       });
 
