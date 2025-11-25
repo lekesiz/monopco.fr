@@ -1,78 +1,122 @@
 import { Dossier, DossierStatus } from '../types';
 
-const STORAGE_KEY = 'monopco_dossiers';
-
-const INITIAL_DATA: Dossier[] = [
-  {
-    id: '101',
-    title: 'Formation React Avancé',
-    description: 'Maîtrise des hooks et performance.',
-    employeeName: 'Jean Dupont',
-    companyId: '2',
-    status: DossierStatus.VALIDATED,
-    amount: 2500,
-    startDate: '2023-10-15',
-    createdAt: '2023-09-01'
-  },
-  {
-    id: '102',
-    title: 'Management Agile',
-    description: 'Certification Scrum Master.',
-    employeeName: 'Alice Durant',
-    companyId: '2',
-    status: DossierStatus.SUBMITTED,
-    amount: 1800,
-    startDate: '2023-11-20',
-    createdAt: '2023-10-10'
-  },
-  {
-    id: '103',
-    title: 'Anglais Professionnel B2',
-    description: 'Perfectionnement anglais des affaires.',
-    employeeName: 'Marc Lefebvre',
-    companyId: '2',
-    status: DossierStatus.DRAFT,
-    amount: 1200,
-    startDate: '2024-01-10',
-    createdAt: '2023-10-25'
-  }
-];
-
+/**
+ * Fetch dossiers from backend API
+ */
 export const getDossiers = async (): Promise<Dossier[]> => {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (!stored) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_DATA));
-    return INITIAL_DATA;
+  try {
+    const response = await fetch('/api/dossiers/list');
+    
+    if (!response.ok) {
+      console.error('Failed to fetch dossiers:', response.status);
+      return [];
+    }
+    
+    const data = await response.json();
+    
+    if (data.success && Array.isArray(data.dossiers)) {
+      // Map database fields to frontend Dossier type
+      return data.dossiers.map((d: any) => ({
+        id: d.id?.toString() || '',
+        title: d.type_dossier === 'bilan' ? 'Bilan de Compétences' : 'Formation Professionnelle',
+        description: `${d.beneficiaire_prenom} ${d.beneficiaire_nom}`,
+        employeeName: `${d.beneficiaire_prenom} ${d.beneficiaire_nom}`,
+        companyId: d.entreprise_id?.toString() || '',
+        status: mapStatus(d.statut),
+        amount: parseFloat(d.montant_estime) || 0,
+        startDate: d.created_at ? new Date(d.created_at).toISOString().split('T')[0] : '',
+        createdAt: d.created_at ? new Date(d.created_at).toISOString().split('T')[0] : ''
+      }));
+    }
+    
+    return [];
+  } catch (error) {
+    console.error('Error fetching dossiers:', error);
+    return [];
   }
-  return JSON.parse(stored);
 };
 
-export const saveDossier = async (dossier: Partial<Dossier>): Promise<Dossier> => {
-  const dossiers = await getDossiers();
+/**
+ * Map database status to DossierStatus enum
+ */
+function mapStatus(statut: string): DossierStatus {
+  const statusMap: Record<string, DossierStatus> = {
+    'brouillon': DossierStatus.DRAFT,
+    'soumis': DossierStatus.SUBMITTED,
+    'en_cours': DossierStatus.IN_PROGRESS,
+    'valide': DossierStatus.VALIDATED,
+    'rejete': DossierStatus.DRAFT
+  };
   
-  if (dossier.id) {
-    // Update
-    const index = dossiers.findIndex(d => d.id === dossier.id);
-    const updated = { ...dossiers[index], ...dossier } as Dossier;
-    dossiers[index] = updated;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(dossiers));
-    return updated;
-  } else {
-    // Create
-    const newDossier: Dossier = {
-      ...dossier,
-      id: Math.random().toString(36).substr(2, 9),
-      createdAt: new Date().toISOString().split('T')[0],
-      status: DossierStatus.DRAFT
-    } as Dossier;
-    dossiers.unshift(newDossier);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(dossiers));
-    return newDossier;
+  return statusMap[statut?.toLowerCase()] || DossierStatus.DRAFT;
+}
+
+/**
+ * Save or update a dossier via backend API
+ */
+export const saveDossier = async (dossier: Partial<Dossier>): Promise<Dossier> => {
+  try {
+    const response = await fetch('/api/dossiers/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        titre: dossier.title,
+        description: dossier.description,
+        nom_beneficiaire: dossier.employeeName,
+        entreprise_id: dossier.companyId ? parseInt(dossier.companyId) : null,
+        montant: dossier.amount,
+        date_debut: dossier.startDate,
+        statut: 'nouveau'
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to save dossier');
+    }
+    
+    const data = await response.json();
+    
+    if (data.success && data.dossier) {
+      const saved = data.dossier;
+      return {
+        id: saved.id?.toString() || '',
+        title: saved.titre || '',
+        description: saved.description || '',
+        employeeName: saved.nom_beneficiaire || '',
+        companyId: saved.entreprise_id?.toString() || '',
+        status: mapStatus(saved.statut),
+        amount: parseFloat(saved.montant) || 0,
+        startDate: saved.date_debut || '',
+        createdAt: saved.created_at || ''
+      };
+    }
+    
+    throw new Error('Invalid response from server');
+  } catch (error) {
+    console.error('Error saving dossier:', error);
+    throw error;
   }
 };
 
+/**
+ * Delete a dossier via backend API
+ */
 export const deleteDossier = async (id: string) => {
-    const dossiers = await getDossiers();
-    const filtered = dossiers.filter(d => d.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  try {
+    const response = await fetch(`/api/dossiers/delete?id=${id}`, {
+      method: 'DELETE'
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to delete dossier');
+    }
+    
+    const data = await response.json();
+    return data.success;
+  } catch (error) {
+    console.error('Error deleting dossier:', error);
+    throw error;
+  }
 };
