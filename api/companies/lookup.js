@@ -1,6 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -55,7 +53,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       status: etablissement.etat_administratif === 'A' ? 'Active' : 'Inactive'
     };
 
-    return res.status(200).json(companyInfo);
+    return res.status(200).json({
+      success: true,
+      company: companyInfo
+    });
   } catch (error) {
     console.error('SIRET lookup error:', error);
     return res.status(500).json({ 
@@ -63,4 +64,4 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
-}
+};

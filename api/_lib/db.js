@@ -1,4 +1,4 @@
-import { Pool } from 'pg';
+const { Pool } = require('pg');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -7,7 +7,7 @@ const pool = new Pool({
   }
 });
 
-export async function query(text: string, params?: any[]) {
+async function query(text, params) {
   const client = await pool.connect();
   try {
     const result = await client.query(text, params);
@@ -17,7 +17,7 @@ export async function query(text: string, params?: any[]) {
   }
 }
 
-export async function getUser(email: string) {
+async function getUser(email) {
   const result = await query(
     'SELECT * FROM users WHERE email = $1',
     [email]
@@ -25,10 +25,16 @@ export async function getUser(email: string) {
   return result.rows[0];
 }
 
-export async function getUserById(id: number) {
+async function getUserById(id) {
   const result = await query(
     'SELECT * FROM users WHERE id = $1',
     [id]
   );
   return result.rows[0];
 }
+
+module.exports = {
+  query,
+  getUser,
+  getUserById
+};
