@@ -165,6 +165,28 @@
 
 ---
 
-Last updated: 2025-11-25 18:35 GMT+1
+Last updated: 2025-11-25 19:35 GMT+1
 
-**Latest Action:** JWT_SECRET added to Vercel, redeployment triggered
+**Latest Action:** vite-plugin-vercel installed and configured (commit 63c8947)
+
+### Critical Fix: Vercel Functions Support
+
+**Problem:** Vite doesn't natively support `/api` folder as serverless functions
+
+**Solution:** Installed `vite-plugin-vercel` (v9.0.8)
+- Enables Vercel Output API (v3) support
+- Automatically detects `/api` folder files
+- Deploys them as serverless functions
+- 23,551 weekly downloads, actively maintained
+
+**Configuration:**
+```typescript
+// vite.config.ts
+import vercel from 'vite-plugin-vercel';
+
+export default defineConfig({
+  plugins: [react(), vercel()],
+});
+```
+
+**Status:** Deployed (commit 63c8947), waiting for Vercel build completion
