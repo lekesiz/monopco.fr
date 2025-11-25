@@ -1,69 +1,73 @@
-import { GoogleGenAI } from "@google/genai";
-
-const apiKey = process.env.API_KEY || '';
-const ai = new GoogleGenAI({ apiKey });
+/**
+ * Gemini AI Service - Frontend wrapper for AI endpoints
+ * Calls backend API endpoints to keep API keys secure
+ */
 
 export const improveJustification = async (
   title: string, 
-  rawDescription: string, 
-  role: string = "Employee"
+  rawDescription: string
 ): Promise<string> => {
   try {
-    const prompt = `
-      Tu es un expert en financement de formation professionnelle (OPCO) en France.
-      Améliore et reformule le texte de justification suivant pour qu'il soit professionnel, convaincant et maximise les chances d'acceptation par l'OPCO.
-      Le texte doit mettre en avant l'acquisition de compétences et le retour sur investissement pour l'entreprise.
-      
-      Contexte:
-      Titre de la formation: ${title}
-      Demandeur: ${role}
-      
-      Texte brut à améliorer:
-      "${rawDescription}"
-      
-      Réponds uniquement avec le texte amélioré, sans introduction ni conclusion.
-    `;
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
+    const response = await fetch('/api/ai/improve', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title,
+        description: rawDescription
+      })
     });
 
-    return response.text || rawDescription;
+    if (!response.ok) {
+      console.error('AI improve API failed:', response.status);
+      return rawDescription;
+    }
+
+    const data = await response.json();
+    
+    if (data.success && data.improvedText) {
+      return data.improvedText;
+    }
+
+    return rawDescription;
   } catch (error) {
-    console.error("Gemini API Error:", error);
-    // Fallback if API fails (or no key)
+    console.error("AI improve error:", error);
     return rawDescription;
   }
 };
 
 export const analyzeCompliance = async (dossierData: any): Promise<{compliant: boolean, advice: string}> => {
-   try {
-    const prompt = `
-      Analyse cette demande de financement de formation au regard des critères standards des OPCOs (pertinence, coût, durée).
-      
-      Données:
-      Titre: ${dossierData.title}
-      Coût: ${dossierData.amount}€
-      Description: ${dossierData.description}
-
-      Réponds au format JSON:
-      {
-        "compliant": boolean,
-        "advice": "string (court conseil en français)"
-      }
-    `;
-
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: {
-            responseMimeType: "application/json"
-        }
+  try {
+    const response = await fetch('/api/ai/analyze', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title: dossierData.title,
+        description: dossierData.description,
+        amount: dossierData.amount
+      })
     });
+
+    if (!response.ok) {
+      console.error('AI analyze API failed:', response.status);
+      return { compliant: true, advice: "Vérification IA indisponible." };
+    }
+
+    const data = await response.json();
     
-    return JSON.parse(response.text || '{"compliant": true, "advice": "Vérification indisponible."}');
-   } catch (e) {
-       return { compliant: true, advice: "Vérification IA indisponible." };
-   }
-}
+    if (data.success) {
+      return {
+        compliant: data.compliant,
+        advice: data.advice
+      };
+    }
+
+    return { compliant: true, advice: "Vérification IA indisponible." };
+  } catch (error) {
+    console.error("AI analyze error:", error);
+    return { compliant: true, advice: "Vérification IA indisponible." };
+  }
+};
