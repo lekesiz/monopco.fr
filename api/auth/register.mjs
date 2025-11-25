@@ -68,21 +68,26 @@ export default async function handler(req, res) {
     );
 
     // Insert user into database
-    const result = await query(
-      `INSERT INTO users 
+    const insertQuery = `INSERT INTO users 
        (email, password, first_name, last_name, company_name, siret, role) 
        VALUES ($1, $2, $3, $4, $5, $6, $7) 
-       RETURNING id, email, first_name, last_name, company_name, siret, role, created_at`,
-      [
-        email.toLowerCase(),
-        password_hash,
-        prenom,
-        nom,
-        entreprise_nom || null,
-        entreprise_siret || null,
-        'entreprise'
-      ]
-    );
+       RETURNING id, email, first_name, last_name, company_name, siret, role, created_at`;
+    
+    const insertParams = [
+      email.toLowerCase(),
+      password_hash,
+      prenom,
+      nom,
+      entreprise_nom || null,
+      entreprise_siret || null,
+      'entreprise'
+    ];
+    
+    console.log('=== DEBUG INSERT USER ===');
+    console.log('Query:', insertQuery);
+    console.log('Params:', insertParams.map((p, i) => `$${i+1}: ${typeof p} (${p?.length || 'null'})`));
+    
+    const result = await query(insertQuery, insertParams);
 
     const user = result.rows[0];
 
