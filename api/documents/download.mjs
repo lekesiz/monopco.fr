@@ -1,9 +1,19 @@
-import { del } from '@vercel/blob';
 import { query } from '../_lib/db.mjs';
 import { getUserFromRequest } from '../_lib/auth.mjs';
 
 export default async function handler(req, res) {
-  if (req.method !== 'DELETE') {
+  // Enable CORS
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
@@ -40,37 +50,24 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'Accès non autorisé' });
     }
 
-    // Delete file from Vercel Blob
-    try {
-      await del(document.file_path);
-    } catch (error) {
-      console.error('Error deleting from Blob:', error);
-      // Continue even if blob deletion fails
-    }
-
-    // Delete document record
-    await query('DELETE FROM documents WHERE id = $1', [id]);
-
-    // Log action
-    await query(
-      `INSERT INTO logs (user_id, action, entity_type, entity_id, details, created_at)
-       VALUES ($1, $2, $3, $4, $5, NOW())`,
-      [
-        user.id,
-        'document_delete',
-        'document',
-        id,
-        JSON.stringify({ fileName: document.file_name })
-      ]
-    );
-
+    // Redirect to the Vercel Blob URL (public access)
+    // The file_path contains the full Blob URL
     return res.status(200).json({
       success: true,
-      message: 'Document supprimé avec succès'
+      url: document.file_path,
+      document: {
+        id: document.id,
+        nom: document.file_name,
+        type: document.file_type,
+        taille: document.file_size
+      }
     });
 
   } catch (error) {
-    console.error('Delete document error:', error);
-    return res.status(500).json({ error: 'Erreur lors de la suppression du document' });
+    console.error('Download document error:', error);
+    return res.status(500).json({ 
+      error: 'Erreur lors du téléchargement du document',
+      details: error.message 
+    });
   }
 }

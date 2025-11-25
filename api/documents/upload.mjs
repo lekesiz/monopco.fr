@@ -1,8 +1,8 @@
+import { put } from '@vercel/blob';
 import { query } from '../_lib/db.mjs';
 import { getUserFromRequest } from '../_lib/auth.mjs';
 import formidable from 'formidable';
 import fs from 'fs';
-import path from 'path';
 
 // Disable body parsing for file uploads
 export const config = {
@@ -57,15 +57,25 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'Accès non autorisé' });
     }
 
-    // In production, upload to S3 or similar
-    // For now, we'll store the file path
+    // Upload to Vercel Blob
     const fileName = file.originalFilename || file.newFilename;
     const fileSize = file.size;
     const fileType = file.mimetype || 'application/octet-stream';
 
-    // TODO: Upload to S3 and get URL
-    // const fileUrl = await uploadToS3(file.filepath, fileName);
-    const fileUrl = `/uploads/${fileName}`; // Placeholder
+    // Read file buffer
+    const fileBuffer = await fs.promises.readFile(file.filepath);
+
+    // Generate unique filename
+    const timestamp = Date.now();
+    const blobFilename = `dossier-${dossierId}/${timestamp}-${fileName}`;
+
+    // Upload to Vercel Blob
+    const blob = await put(blobFilename, fileBuffer, {
+      access: 'public',
+      contentType: fileType
+    });
+
+    const fileUrl = blob.url;
 
     // Save document record to database
     const result = await query(
