@@ -99,7 +99,7 @@ export const Dashboard: React.FC = () => {
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions Rapides</h2>
           <div className="space-y-4">
-            <button className="w-full flex items-center p-4 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all group">
+            <a href="/#/basvuru" className="w-full flex items-center p-4 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all group">
               <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-200">
                 <FileText size={20} />
               </div>
@@ -107,17 +107,17 @@ export const Dashboard: React.FC = () => {
                 <p className="font-medium text-gray-900">Nouveau Dossier</p>
                 <p className="text-sm text-gray-500">Créer une demande de prise en charge</p>
               </div>
-            </button>
+            </a>
             
-            <button className="w-full flex items-center p-4 rounded-lg border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all group">
+            <a href="/#/dossiers" className="w-full flex items-center p-4 rounded-lg border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all group">
               <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-200">
                 <CheckCircle size={20} />
               </div>
               <div className="ml-4 text-left">
-                <p className="font-medium text-gray-900">Valider Factures</p>
-                <p className="text-sm text-gray-500">2 factures en attente</p>
+                <p className="font-medium text-gray-900">Mes Dossiers</p>
+                <p className="text-sm text-gray-500">{dossiers.length} dossier(s)</p>
               </div>
-            </button>
+            </a>
           </div>
         </div>
       </div>
