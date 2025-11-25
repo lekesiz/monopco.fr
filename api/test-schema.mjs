@@ -2,17 +2,35 @@ import { query } from './_lib/db.mjs';
 
 export default async function handler(req, res) {
   try {
+    // Get all tables
+    const tables = await query(
+      `SELECT table_name 
+       FROM information_schema.tables 
+       WHERE table_schema = 'public' 
+       ORDER BY table_name`
+    );
+
     // Get users table schema
-    const result = await query(
+    const usersSchema = await query(
       `SELECT column_name, data_type, is_nullable 
        FROM information_schema.columns 
        WHERE table_name = 'users' 
        ORDER BY ordinal_position`
     );
 
+    // Get dossiers table schema (if exists)
+    const dossiersSchema = await query(
+      `SELECT column_name, data_type, is_nullable 
+       FROM information_schema.columns 
+       WHERE table_name = 'dossiers' 
+       ORDER BY ordinal_position`
+    );
+
     return res.status(200).json({
       success: true,
-      schema: result.rows,
+      tables: tables.rows,
+      users_schema: usersSchema.rows,
+      dossiers_schema: dossiersSchema.rows,
       message: 'Database schema retrieved successfully'
     });
   } catch (error) {
