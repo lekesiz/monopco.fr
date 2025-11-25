@@ -6,18 +6,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { user_id, status } = req.query;
+    const { entreprise_id, statut } = req.query;
 
-    if (!user_id) {
-      return res.status(400).json({ error: 'user_id is required' });
+    let queryText = 'SELECT * FROM dossiers WHERE 1=1';
+    const params = [];
+
+    if (entreprise_id) {
+      params.push(entreprise_id);
+      queryText += ` AND entreprise_id = $${params.length}`;
     }
 
-    let queryText = 'SELECT * FROM dossiers WHERE user_id = $1';
-    const params = [user_id];
-
-    if (status && typeof status === 'string') {
-      queryText += ' AND status = $2';
-      params.push(status);
+    if (statut && typeof statut === 'string') {
+      params.push(statut);
+      queryText += ` AND statut = $${params.length}`;
     }
 
     queryText += ' ORDER BY created_at DESC';

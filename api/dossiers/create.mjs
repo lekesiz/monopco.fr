@@ -7,29 +7,40 @@ export default async function handler(req, res) {
 
   try {
     const { 
-      user_id,
-      title,
-      description,
-      company_id,
-      status = 'draft'
+      entreprise_id,
+      type_dossier = 'formation',
+      beneficiaire_nom,
+      beneficiaire_prenom,
+      beneficiaire_email,
+      beneficiaire_telephone,
+      montant_estime
     } = req.body;
 
     // Validate required fields
-    if (!user_id || !title) {
+    if (!type_dossier) {
       return res.status(400).json({ 
-        error: 'Missing required fields: user_id, title' 
+        error: 'Missing required field: type_dossier' 
       });
     }
 
-    // Insert dossier
+    // Insert dossier (using French column names)
     const result = await query(
       `INSERT INTO dossiers (
-        user_id, title, description, company_id, status, created_at, updated_at
+        entreprise_id, type_dossier, statut,
+        beneficiaire_nom, beneficiaire_prenom, beneficiaire_email, beneficiaire_telephone,
+        montant_estime, created_at, updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
       RETURNING *`,
       [
-        user_id, title, description || null, company_id || null, status
+        entreprise_id || null,
+        type_dossier,
+        'brouillon', // draft in French
+        beneficiaire_nom || null,
+        beneficiaire_prenom || null,
+        beneficiaire_email || null,
+        beneficiaire_telephone || null,
+        montant_estime || null
       ]
     );
 
@@ -38,7 +49,7 @@ export default async function handler(req, res) {
     return res.status(201).json({ 
       success: true,
       dossier,
-      message: 'Dossier created successfully'
+      message: 'Dossier créé avec succès'
     });
   } catch (error) {
     console.error('Create dossier error:', error);
