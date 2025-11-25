@@ -153,11 +153,11 @@
 - [x] Vercel project linked
 - [x] Database (Neon) configured
 - [x] API endpoints working
-- [ ] Environment variables set in Vercel:
-  - [ ] DATABASE_URL
-  - [ ] RESEND_API_KEY
-  - [ ] GEMINI_API_KEY
-  - [ ] JWT_SECRET
+- [x] Environment variables set in Vercel:
+  - [x] DATABASE_URL
+  - [x] RESEND_API_KEY
+  - [x] GEMINI_API_KEY
+  - [x] JWT_SECRET
 - [ ] Custom domain configured (if needed)
 - [ ] SSL certificate active
 - [ ] Monitoring enabled
@@ -165,4 +165,6 @@
 
 ---
 
-Last updated: 2025-11-25
+Last updated: 2025-11-25 18:35 GMT+1
+
+**Latest Action:** JWT_SECRET added to Vercel, redeployment triggered
