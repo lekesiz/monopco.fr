@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { Lock, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function ResetPassword() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [location, navigate] = useLocation();
   const [token, setToken] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -53,7 +52,7 @@ export default function ResetPassword() {
       if (response.ok) {
         setMessage(data.message);
         setTimeout(() => {
-          navigate('/#/login');
+          navigate('/login');
         }, 2000);
       } else {
         setError(data.error || 'Erreur lors de la réinitialisation');
@@ -140,7 +139,7 @@ export default function ResetPassword() {
 
           <div className="mt-6 text-center">
             <button
-              onClick={() => navigate('/#/login')}
+              onClick={() => navigate('/login')}
               className="text-blue-600 hover:text-blue-700 text-sm font-medium"
             >
               Retour à la connexion
