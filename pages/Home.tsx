@@ -33,9 +33,9 @@ export default function Home() {
               <Link href="/login">
                 <Button variant="ghost">Connexion</Button>
               </Link>
-              <Link href="/login">
+              <Link href="/register">
                 <Button className="bg-blue-700 hover:bg-blue-800 text-white shadow-lg">
-                  Démarrer
+                  S'inscrire
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>

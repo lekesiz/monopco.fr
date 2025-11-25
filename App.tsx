@@ -5,6 +5,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Dossiers } from './pages/Dossiers';
 import { DossierForm } from './pages/DossierForm';
 import { Login } from './pages/Login';
+import Register from './pages/Register';
 import Home from './pages/Home';
 import DetailDossier from './pages/DetailDossier';
 import Basvuru from './pages/Basvuru';
@@ -27,7 +28,7 @@ function AppContent() {
 
   useEffect(() => {
     const user = getCurrentUser();
-    const publicPaths = ['/login', '/home', '/', '/basvuru', '/mentions-legales', '/cgu', '/politique-confidentialite', '/forgot-password', '/reset-password'];
+    const publicPaths = ['/login', '/register', '/home', '/', '/basvuru', '/mentions-legales', '/cgu', '/politique-confidentialite', '/forgot-password', '/reset-password'];
     if (!user && !publicPaths.includes(location)) {
       navigate('/home');
     } else {
@@ -40,6 +41,7 @@ function AppContent() {
       <Route path="/" component={Home} />
       <Route path="/home" component={Home} />
       <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/dossiers" component={Dossiers} />
       <Route path="/dossier/new" component={DossierForm} />

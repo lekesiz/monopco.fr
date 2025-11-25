@@ -143,6 +143,15 @@ export const Login: React.FC = () => {
               </button>
             </div>
           </div>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Vous n'avez pas encore de compte ?{' '}
+              <a href="/#/register" className="font-medium text-blue-600 hover:text-blue-500">
+                Créer un compte
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </div>

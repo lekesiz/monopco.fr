@@ -140,6 +140,7 @@ export const DossierForm: React.FC = () => {
                   className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   value={formData.startDate}
                   onChange={handleChange}
+                  placeholder="jj/mm/aaaa"
                 />
               </div>
             </div>
