@@ -52,29 +52,25 @@ export default function Home() {
               Propulsé par Netz Informatique
             </div>
             <h1 className="text-4xl md:text-6xl font-bold mb-6 text-gray-900">
-              Simplifiez vos dossiers{" "}
-              <span className="text-blue-600">OPCO</span>
+              Votre <span className="text-blue-600">Bilan de Compétences</span><br />
+              financé par l'OPCO
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 mb-8 leading-relaxed">
-              Plateforme automatisée pour gérer vos <strong>Bilans de Compétences</strong> et 
+              Plateforme automatisée pour gérer vos dossiers de <strong>Bilan de Compétences</strong> et 
               formations professionnelles avec financement OPCO
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/basvuru">
+              <a href="https://bilancompetence.ai" target="_blank" rel="noopener noreferrer">
                 <Button size="lg" className="bg-blue-700 hover:bg-blue-800 text-white shadow-lg text-lg px-8 py-6">
-                  Démarrer ma demande
+                  Découvrir le Bilan de Compétences
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-              </Link>
-              <a href="#opco-section">
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="text-lg px-8 py-6 border-gray-300"
-                >
-                  En savoir plus
-                </Button>
               </a>
+              <Link href="/basvuru">
+                <Button size="lg" variant="outline" className="text-lg px-8 py-6 border-gray-300">
+                  Démarrer un dossier OPCO
+                </Button>
+              </Link>
             </div>
             
             {/* Stats */}
@@ -221,7 +217,7 @@ export default function Home() {
 
             <div className="bg-blue-700 text-white rounded-lg p-8">
               <h3 className="text-2xl font-bold mb-4">Pourquoi choisir le Bilan d'abord ?</h3>
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <div className="flex gap-3">
                   <Shield className="h-6 w-6 flex-shrink-0" />
                   <div>
@@ -240,6 +236,14 @@ export default function Home() {
                     </p>
                   </div>
                 </div>
+              </div>
+              <div className="text-center">
+                <a href="https://bilancompetence.ai" target="_blank" rel="noopener noreferrer">
+                  <Button size="lg" className="bg-white text-blue-700 hover:bg-gray-100 font-semibold shadow-xl">
+                    En savoir plus sur BilanCompetence.ai
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </a>
               </div>
             </div>
           </div>
