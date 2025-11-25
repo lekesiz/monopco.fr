@@ -7,6 +7,8 @@ export default function Basvuru() {
   const [siret, setSiret] = useState('');
   const [loading, setLoading] = useState(false);
   const [companyData, setCompanyData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [employeeCount, setEmployeeCount] = useState('');
   const [estimatedAmount, setEstimatedAmount] = useState(0);
   const [formData, setFormData] = useState({
@@ -18,23 +20,30 @@ export default function Basvuru() {
 
   const handleSiretLookup = async () => {
     if (!siret || siret.length !== 14) {
-      alert('Veuillez entrer un numéro SIRET valide (14 chiffres)');
+      setError('Veuillez entrer un numéro SIRET valide (14 chiffres)');
       return;
     }
 
+    setError(null);
+    setSuccess(null);
     setLoading(true);
+    
     try {
       const response = await fetch(`/api/companies/lookup?siret=${siret}`);
       const data = await response.json();
 
       if (data.success) {
         setCompanyData(data.company);
-        setStep(2);
+        setSuccess(`Entreprise trouvée : ${data.company.nom} - OPCO: ${data.company.opco}`);
+        setTimeout(() => {
+          setStep(2);
+          setSuccess(null);
+        }, 1500);
       } else {
-        alert('Entreprise non trouvée. Veuillez vérifier votre numéro SIRET.');
+        setError('Entreprise non trouvée. Veuillez vérifier votre numéro SIRET.');
       }
     } catch (error) {
-      alert('Erreur lors de la recherche de l\'entreprise');
+      setError('Erreur lors de la recherche de l\'entreprise. Veuillez réessayer.');
     } finally {
       setLoading(false);
     }
@@ -124,6 +133,17 @@ export default function Basvuru() {
             <p className="text-gray-600 mb-8">
               Entrez votre numéro SIRET pour identifier automatiquement votre entreprise et votre OPCO.
             </p>
+            
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
+            {success && (
+              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-600">{success}</p>
+              </div>
+            )}
             
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">

@@ -8,13 +8,26 @@ export const Login: React.FC = () => {
   const [email, setEmail] = useState('rh@techsolutions.fr');
   const [password, setPassword] = useState('password');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setSuccess(false);
     setIsLoading(true);
-    await login(email);
-    setIsLoading(false);
-    navigate('/dashboard');
+    
+    try {
+      await login(email);
+      setSuccess(true);
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 500);
+    } catch (err) {
+      setError('Erreur de connexion. Veuillez réessayer.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -31,6 +44,16 @@ export const Login: React.FC = () => {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+          {success && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
+              <p className="text-sm text-green-600">Connexion réussie ! Redirection...</p>
+            </div>
+          )}
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -80,7 +103,7 @@ export const Login: React.FC = () => {
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
+                <a href="/#/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
                   Mot de passe oublié ?
                 </a>
               </div>

@@ -11,6 +11,7 @@ import Basvuru from './pages/Basvuru';
 import MentionsLegales from './pages/MentionsLegales';
 import CGU from './pages/CGU';
 import PolitiqueConfidentialite from './pages/PolitiqueConfidentialite';
+import ForgotPassword from './pages/ForgotPassword';
 import { getCurrentUser } from './services/authService';
 
 function AppContent() {
@@ -19,7 +20,7 @@ function AppContent() {
 
   useEffect(() => {
     const user = getCurrentUser();
-    const publicPaths = ['/login', '/home', '/', '/basvuru', '/mentions-legales', '/cgu', '/politique-confidentialite'];
+    const publicPaths = ['/login', '/home', '/', '/basvuru', '/mentions-legales', '/cgu', '/politique-confidentialite', '/forgot-password'];
     if (!user && !publicPaths.includes(location)) {
       navigate('/home');
     } else {
@@ -41,6 +42,7 @@ function AppContent() {
       <Route path="/mentions-legales" component={MentionsLegales} />
       <Route path="/cgu" component={CGU} />
       <Route path="/politique-confidentialite" component={PolitiqueConfidentialite} />
+      <Route path="/forgot-password" component={ForgotPassword} />
       {/* Fallback */}
       <Route>
         {isAuth ? <Dashboard /> : <Home />}

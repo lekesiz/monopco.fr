@@ -66,7 +66,15 @@ export default function Home() {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="text-lg px-8 py-6 border-gray-300">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="text-lg px-8 py-6 border-gray-300"
+                onClick={() => {
+                  const opcoSection = document.getElementById('opco-section');
+                  opcoSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+              >
                 En savoir plus
               </Button>
             </div>
@@ -91,7 +99,7 @@ export default function Home() {
       </section>
 
       {/* OPCO Section */}
-      <section className="py-20 bg-white">
+      <section id="opco-section" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
@@ -318,16 +326,16 @@ export default function Home() {
               <p className="text-gray-400">
                 Netz Informatique<br />
                 67500 Haguenau, France<br />
-                📞 03 67 31 02 01<br />
-                📧 contact@netzinformatique.fr
+                📞 <a href="tel:+33367310201" className="hover:text-white">03 67 31 02 01</a><br />
+                📧 <a href="mailto:contact@netzinformatique.fr" className="hover:text-white">contact@netzinformatique.fr</a>
               </p>
             </div>
             <div>
               <h4 className="font-bold mb-4">Liens Utiles</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white">Mentions légales</a></li>
-                <li><a href="#" className="hover:text-white">Politique de confidentialité</a></li>
-                <li><a href="#" className="hover:text-white">CGU</a></li>
+                <li><a href="/#/mentions-legales" className="hover:text-white">Mentions légales</a></li>
+                <li><a href="/#/politique-confidentialite" className="hover:text-white">Politique de confidentialité</a></li>
+                <li><a href="/#/cgu" className="hover:text-white">CGU</a></li>
               </ul>
             </div>
           </div>
