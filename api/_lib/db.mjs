@@ -1,39 +1,22 @@
 import { Pool } from '@neondatabase/serverless';
-import { setupDatabase } from './db-setup.mjs';
 
-// Validate DATABASE_URL
 if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL environment variable is not set.");
+  throw new Error("DATABASE_URL environment variable is not set.");
 }
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-let isDbSetup = false;
-
-async function ensureDbSetup() {
-  if (!isDbSetup && process.env.NODE_ENV !== 'production') {
-    try {
-      await setupDatabase();
-      isDbSetup = true;
-    } catch (err) {
-      console.error("FATAL: Database setup failed:", err);
-      process.exit(1);
-    }
-  }
-}
-
 export async function query(text, params) {
-  await ensureDbSetup();
   const start = Date.now();
   try {
     const res = await pool.query(text, params);
     const duration = Date.now() - start;
-    console.log('executed query', { text, duration, rows: res.rowCount });
+    console.log('executed query', { text: text.substring(0, 100), duration, rows: res.rowCount });
     return res;
   } catch (err) {
-    console.error('Query Error', { text, error: err.message });
+    console.error('Query Error', { text: text.substring(0, 100), error: err.message });
     throw err;
   }
 }
