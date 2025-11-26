@@ -1,4 +1,3 @@
-'''
 import { query } from './db.mjs';
 
 export async function setupDatabase() {
@@ -44,4 +43,3 @@ export async function setupDatabase() {
 
   console.log('Veritabanı kurulumu tamamlandı.');
 }
-'''

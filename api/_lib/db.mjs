@@ -1,4 +1,3 @@
-'''
 import { Pool } from '@neondatabase/serverless';
 import { setupDatabase } from './db-setup.mjs';
 
@@ -54,4 +53,3 @@ export async function getUserById(id) {
   );
   return result.rows[0];
 }
-'''
