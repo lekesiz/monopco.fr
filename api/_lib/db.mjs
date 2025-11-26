@@ -7,6 +7,10 @@ if (!connectionString) {
   throw new Error("DATABASE_URL or DATABASE_POSTGRES_URL environment variable is not set.");
 }
 
+// Debug: Log which connection string is being used (hide password)
+const debugConnectionString = connectionString.replace(/:[^@]+@/, ':****@');
+console.log('[DB] Using connection string:', debugConnectionString);
+
 const pool = new Pool({
   connectionString,
 });
