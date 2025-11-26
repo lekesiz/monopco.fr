@@ -1,11 +1,14 @@
 import { Pool } from '@neondatabase/serverless';
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is not set.");
+// Support both DATABASE_URL and DATABASE_POSTGRES_URL (Vercel Neon integration)
+const connectionString = process.env.DATABASE_URL || process.env.DATABASE_POSTGRES_URL;
+
+if (!connectionString) {
+  throw new Error("DATABASE_URL or DATABASE_POSTGRES_URL environment variable is not set.");
 }
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString,
 });
 
 export async function query(text, params) {
