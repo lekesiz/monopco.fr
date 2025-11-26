@@ -29,7 +29,7 @@ export default async function handler(req, res) {
 
     // Get user from database
     const result = await query(
-      'SELECT id, email, password_hash, contact_nom, entreprise_siret, entreprise_nom, role, email_verified FROM users WHERE email = $1',
+      'SELECT id, email, password_hash, prenom, nom, entreprise_siret, entreprise_nom, role FROM users WHERE email = $1',
       [email.toLowerCase()]
     );
 

@@ -69,9 +69,9 @@ export default async function handler(req, res) {
 
     // Insert user into database
     const insertQuery = `INSERT INTO users 
-       (email, password, first_name, last_name, company_name, siret, role) 
+       (email, password_hash, prenom, nom, entreprise_nom, entreprise_siret, role) 
        VALUES ($1, $2, $3, $4, $5, $6, $7) 
-       RETURNING id, email, first_name, last_name, company_name, siret, role, created_at`;
+       RETURNING id, email, prenom, nom, entreprise_nom, entreprise_siret, role, created_at`;
     
     const insertParams = [
       email.toLowerCase(),
